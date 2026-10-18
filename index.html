@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Auckland Airport (AKL) departures and arrivals with gates">
+<link rel="icon" href="data:,">
+<title>奧克蘭機場實時航班</title>
+<style>
+/* v3 — dark base, teal/aqua + violet-blue gradients (approximate tones only; not any company's brand). All art is drawn inline (SVG/CSS). */
+:root{--bg:#08090d;--panel:#12151d;--panel2:#1b1f2b;--ink:#f3f5f7;--muted:#c3cad4;--aqua:#5eead4;--aqua2:#7cf0dd;--teal:#0f766e;--tealD:#0d5a5f;--vio:#6d63ff;--vioD:#2c2878;--line:#6b7689;--tap:max(44px,2.75rem)}
+html{font-size:100%}html.f1{font-size:87.5%}html.f3{font-size:112.5%}html.f4{font-size:125%}html.f5{font-size:150%}html.f6{font-size:175%}
+*{box-sizing:border-box}
+body{font-family:system-ui,"PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif;margin:0;color:var(--ink);font-size:1rem;line-height:1.4;overflow-wrap:anywhere;
+ background-color:var(--bg);
+ /* faint generic geometric band (kōwhaiwhai-like curves; not a specific traditional pattern) */
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='48' viewBox='0 0 96 48'%3E%3Cg fill='none' stroke='%235eead4' stroke-opacity='.07' stroke-width='2'%3E%3Cpath d='M0 24c12 0 12-16 24-16s12 16 24 16 12 16 24 16 12-16 24-16'/%3E%3Ccircle cx='24' cy='14' r='4'/%3E%3Ccircle cx='72' cy='34' r='4'/%3E%3C/g%3E%3Cg fill='%236d63ff' fill-opacity='.06'%3E%3Cpath d='M44 2l4 6 4-6zM44 46l4-6 4 6z'/%3E%3C/g%3E%3C/svg%3E");background-size:6rem 3rem}
+a{color:var(--aqua2)}
+header{position:relative;overflow:hidden;color:#fff;padding:.75rem .875rem .6rem;background:linear-gradient(120deg,#05171a 0%,#0a3438 45%,#1b1a4d 100%)}
+header>*{position:relative;z-index:1}
+header .fern{position:absolute;z-index:0;right:-.5rem;top:-.4rem;height:8.5rem;width:auto;opacity:.28;pointer-events:none}
+h1{font-size:1.3rem;margin:0 0 .25rem;display:flex;align-items:center;gap:.45rem}
+h1 svg{flex:none;width:1.5rem;height:1.5rem}
+.sub{font-size:.9rem;color:#dbe7ee;margin:0}
+.hd{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-top:.5rem}
+.hd label{font-size:.9rem}
+select,input,button{font:inherit;font-size:1rem;min-height:var(--tap);max-width:100%;border-radius:.375rem}
+select{background:#0b0d13;color:var(--ink);border:1px solid var(--line)}
+#lang{padding:0 .5rem}
+.fontc{display:flex;gap:.25rem}
+.fontc button{min-width:var(--tap);background:#141824;color:#e6fffb;border:1px solid var(--aqua);font-weight:bold;padding:0 .5rem}
+.fontc button[aria-pressed=true]{background:var(--aqua);color:#04201d}
+.flightpath{display:block;width:100%;height:1.6rem;background:#0a0c12}
+#upd{background:linear-gradient(90deg,#0b1d22,#151432);border-left:.35rem solid var(--aqua);border-bottom:1px solid #1f2633;padding:.625rem .875rem;font-size:1.05rem}
+#upd .big{font-size:1.3rem;font-weight:bold;color:#fff}
+#upd .small{font-size:.9rem;color:var(--muted)}
+#upd.stale{background:#2a1215;border-left-color:#f87171}
+.updrow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between}
+#refresh{background:var(--teal);color:#fff;border:0;padding:0 1rem;font-weight:bold}
+.tabs{display:flex;background:#0e1118;border-bottom:1px solid #1f2633}
+.tabs button{flex:1;border:0;border-radius:0;background:none;color:#d5dbe3;font-size:1.1rem;padding:.5rem;min-height:var(--tap)}
+.tabs button[aria-selected=true]{background:linear-gradient(90deg,var(--tealD),var(--vioD));color:#fff;font-weight:bold;box-shadow:inset 0 -.2rem 0 var(--aqua)}
+main{padding:.625rem;max-width:56rem;margin:auto}
+.panel{background:var(--panel);border:1px solid #232938;border-radius:.6rem;padding:.625rem;margin-bottom:.625rem}
+.field{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem;min-width:0}
+.field label,.lblb{font-weight:bold;font-size:.95rem}
+.field .row{display:flex;gap:.375rem}
+.field input{flex:1;min-width:0;padding:0 .625rem;border:1px solid var(--line);background:#0b0d13;color:var(--ink)}
+.field input::placeholder{color:#9aa4b2}
+.field input.gateq{font-size:1.3rem;font-weight:bold;letter-spacing:.03em}
+input:focus-visible,select:focus-visible,button:focus-visible,.card.sc:focus-visible,summary:focus-visible{outline:3px solid var(--aqua);outline-offset:2px}
+.clr{background:#1b1f2b;border:1px solid var(--line);min-width:var(--tap);padding:0 .5rem;color:var(--ink);font-weight:bold}
+.opts,.search{display:flex;flex-wrap:wrap;gap:0 .625rem}.search .field{flex:1 1 9rem}.search .field.fl{flex:2 1 12rem}.opts .field{flex:1 1 8rem;margin-bottom:.25rem}.opts .chk{flex:1 1 100%}
+.opts select{padding:0 .5rem;width:100%}
+.chk{display:flex;gap:.5rem;align-items:center;min-height:var(--tap)}
+.chk input{width:1.5rem;height:1.5rem;min-height:0;flex:none;accent-color:var(--aqua)}
+.qhint{font-size:.85rem;color:var(--aqua2);margin:-.2rem 0 .4rem}
+details summary{min-height:var(--tap);display:flex;align-items:center;font-weight:bold;cursor:pointer;color:var(--aqua2)}details summary::before{content:"▸";margin-right:.4rem}details[open] summary::before{content:"▾"}details summary::-webkit-details-marker{display:none}details{margin-bottom:.5rem}
+.chips{display:flex;flex-wrap:wrap;gap:.375rem;margin-top:.25rem}
+.chips button{min-width:var(--tap);background:#10262a;border:1px solid #2fb8a8;color:#c8faf2;font-weight:bold;padding:0 .5rem}
+.chips button[aria-pressed=true]{background:var(--aqua);color:#04201d}
+.slotbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}
+#slotLbl,#count,.tapHint{background:var(--bg);padding:0 .2rem;border-radius:.2rem}
+#loadNext{background:#0b0d13;border:2px solid var(--aqua);color:var(--aqua2);font-weight:bold;padding:0 .75rem}
+#loadNext:disabled{border-color:#4b5563;color:#c3cad4}
+#count{font-weight:bold;display:inline-block}
+.tapHint{color:var(--aqua2);font-size:.9rem;margin:.2rem 0 0;display:inline-block}
+.card{background:var(--panel);border:1px solid #232938;border-radius:.6rem;padding:.625rem;margin:.5rem 0;display:flex;gap:.625rem;border-left:.375rem solid #4f6b86}
+.card.cx{border-left-color:#f87171}.card.done{border-left-color:#6b7280}.card.board{border-left-color:#34d399}
+.card .main{flex:1;min-width:0}
+.time{font-size:1.35rem;font-weight:bold}
+.time s,.sc-time s{font-weight:normal;color:var(--muted);font-size:1rem;margin-left:.25rem}
+.date{font-size:.85rem;color:var(--muted);font-weight:normal}
+.fno{font-weight:bold;font-size:1.1rem;color:#fff}
+.al,.cs,.meta{font-size:.9rem;color:var(--muted)}
+.city{font-size:1.1rem;font-weight:bold}
+.gatebox{flex:none;text-align:center;min-width:4.5rem;background:#0b0c10;border:2px solid #343b4d;border-top:.25rem solid var(--aqua);color:#fff;border-radius:.5rem;padding:.3rem .5rem;align-self:flex-start}
+.gatebox .lbl{font-size:.8rem;display:block;color:#c9d1db}
+.gatebox .g{font-size:1.9rem;font-weight:bold;line-height:1.1;display:block}
+.gatebox.tba{border-top-color:#4b5563}.gatebox.tba .g{font-size:1rem;padding:.4rem 0}
+.st{display:inline-block;padding:.1rem .5rem;border-radius:.3rem;font-weight:bold;font-size:.9rem;margin-top:.25rem}
+.s-ok{background:#0f3d2a;color:#a7f3c9}.s-warn{background:#3d2a06;color:#fde68a}.s-bad{background:#45121a;color:#fecaca}.s-done{background:#2a2d36;color:#e2e6ec}.s-info{background:#11304f;color:#bfdbfe}
+/* ---- gate-sign card (departures): dark sign, white numerals, aqua accent, curved frame ---- */
+.card.sc{display:block;padding:.5rem;border-left:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card.sc.nogate{cursor:default}
+.card.sc:active{transform:scale(.99)}
+.sc-row{display:flex;border-radius:.9rem .9rem .4rem .4rem;overflow:hidden;border:2px solid #343b4d}
+.sc-gate{flex:0 0 5.4rem;background:linear-gradient(180deg,#0b0c10,#1b1f2a);border-top:.3rem solid var(--aqua);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.3rem .2rem;text-align:center;min-width:0}
+.sc-gate .l{font-size:.75rem;color:#c9d1db;font-weight:700;line-height:1.1}
+.sc-gate .n{font-size:2.1rem;font-weight:800;line-height:1.05;color:#fff;font-variant-numeric:tabular-nums}
+.sc-gate .n.na{font-size:.95rem;color:#e2e6ec;padding:.4rem 0}
+.sc-sign{flex:1;min-width:0;display:flex;flex-direction:column}
+.sc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.4rem;padding:.35rem .55rem;background:#1c2130;color:#fff}
+.sc-fl{min-width:0;flex:1 1 auto}
+.sc-fno{font-size:1.2rem;font-weight:800;line-height:1.15}
+.sc-al{font-size:.8rem;color:#d5dbe3}
+.sc-time{flex:0 0 auto;text-align:right;font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.sc-time .date{display:block;font-size:.7rem}
+.sc-dest{background:linear-gradient(90deg,var(--tealD),var(--vioD));color:#fff;padding:.25rem .55rem .35rem;font-size:1.2rem;font-weight:800;line-height:1.2;min-width:0}
+.sc-dest .to{font-size:.7rem;font-weight:600;display:block;color:#e8fffb}
+.sc-dest .code{font-size:.65em;font-weight:700;margin-left:.35em;color:#e8fffb}
+.card.sc.cx .sc-fno,.card.sc.cx .sc-dest b{text-decoration:line-through}
+.sc-foot{margin-top:.35rem;display:flex;flex-wrap:wrap;gap:.25rem .5rem;align-items:center}
+.sc-foot .st{margin-top:0}
+.sc-meta{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+.sc-cs{font-size:.8rem;color:#d5dbe3}
+/* ---- pillar view: curved sign → tapered pillar → ponga-like skirt base ---- */
+#pillarView{max-width:56rem;margin:auto;padding:.625rem}
+.backbtn{display:inline-flex;align-items:center;gap:.35rem;background:var(--teal);color:#fff;border:0;font-weight:bold;padding:0 1rem;margin:.25rem 0 .6rem}
+.pl-scene{position:relative;padding:.75rem .5rem 0;border-radius:.8rem;background:radial-gradient(ellipse at 50% 0%,#14353a 0%,#101327 55%,#08090d 100%);overflow:hidden}
+.pl-scene .koru{position:absolute;z-index:0;opacity:.5;pointer-events:none}
+.pl-scene .koru.k1{left:-1.5rem;bottom:2.5rem;width:7rem}.pl-scene .koru.k2{right:-1rem;top:5rem;width:5.5rem}
+.pl-sign,.pl-body,.pl-base,.pl-floor{position:relative;z-index:1}
+.pl-sign{margin:0 auto;width:min(100%,24rem);background:#0b0c10;border:3px solid #3a4256;border-radius:1.6rem 1.6rem .5rem .5rem;text-align:center;padding:.5rem .5rem .6rem;box-shadow:0 0 0 1px #000,0 .4rem 1rem #0008}
+.pl-sign .l{display:block;font-size:1rem;font-weight:700;color:#d5dbe3}
+.pl-sign .n{display:block;font-size:4.5rem;font-weight:800;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.pl-sign .bar{display:block;height:.35rem;width:60%;margin:1.2rem auto 0;border-radius:1rem;background:linear-gradient(90deg,var(--aqua),var(--vio))}
+.pl-body{margin:0 auto;width:min(86%,21rem);min-height:10rem;background:linear-gradient(90deg,#11141d 0,#232938 30%,#2a3142 50%,#232938 70%,#11141d 100%);padding:.75rem .6rem 1rem;border-left:1px solid #3a4256;border-right:1px solid #3a4256}
+.pl-next{background:#1c2130;border:1px solid #3a4256;border-radius:.5rem;overflow:hidden;color:#fff}
+.pl-next .top{display:flex;justify-content:space-between;gap:.4rem;padding:.4rem .55rem}
+.pl-next .fno{font-size:1.25rem}
+.pl-next .tm{font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums}
+.pl-next .dest{background:linear-gradient(90deg,var(--tealD),var(--vioD));padding:.3rem .55rem .4rem;font-size:1.3rem;font-weight:800}
+.pl-next .dest small{display:block;font-size:.72rem;font-weight:600;color:#e8fffb}
+.pl-next .ft{padding:.35rem .55rem .45rem}
+.pl-label{font-size:.85rem;color:#d5dbe3;margin:0 0 .3rem;font-weight:700}
+.pl-empty{color:#e2e6ec;text-align:center;padding:1rem .5rem}
+.pl-base{margin:0 auto;width:min(100%,25rem);height:2.6rem;background:linear-gradient(90deg,#7d8794,#d9dee4 45%,#aeb6c0 60%,#7d8794);clip-path:polygon(16% 0,84% 0,100% 100%,0 100%)}
+.pl-floor{height:1.2rem;margin:0 -.5rem;background:linear-gradient(180deg,#1a1e29,#08090d)}
+.pl-list h2{font-size:1.15rem;margin:1rem 0 .3rem}
+.empty{padding:1rem;text-align:center;color:var(--muted)}
+.empty svg{width:4rem;height:4rem;display:block;margin:0 auto .4rem}
+.err{color:#fecaca;font-weight:bold}
+footer{position:relative;padding:1rem .875rem 2rem;max-width:56rem;margin:auto;font-size:.95rem}
+#attrib{display:block;background:var(--panel);border:2px solid var(--aqua);border-radius:.6rem;padding:.75rem;font-size:1.1rem;font-weight:bold;text-align:center}
+#attrib a{color:var(--aqua2);display:inline-flex;align-items:center;min-height:var(--tap);padding:0 .5rem;text-decoration:underline}
+footer p{color:var(--muted);background:var(--bg);display:inline-block;padding:0 .2rem}
+footer .korus{display:block;width:9rem;height:auto;margin:.6rem auto 0;opacity:.7}
+[hidden]{display:none!important}
+.sr{position:absolute;left:-9999px}
+@media (min-width:48rem){.opts .chk{flex:2 1 16rem}}
+.fpwrap{position:relative;line-height:0}.fpwrap .fpplane{position:absolute;left:62%;top:.1rem;width:1.25rem;height:1.25rem;transform:rotate(78deg)}
+</style>
+</head>
+<body>
+<header>
+  <svg class="fern" viewBox="0 0 130 180" aria-hidden="true" focusable="false"><g fill="none" stroke="#e8ecef" stroke-linecap="round" stroke-linejoin="round"><path d="M20 170Q40 60 84.3 36.8" stroke-width="1.6"/><path d="M22.4 157.9Q34.2 164.3 49.4 154.3Q37.9 146.6 22.4 157.9 M22.4 157.9Q9 159 -1 143.8Q12.6 141.4 22.4 157.9 M24.9 146.3Q36 152.7 50.8 143.6Q40 136 24.9 146.3 M24.9 146.3Q12.2 147 3.1 132.3Q16.1 130.3 24.9 146.3 M27.7 135.2Q38.1 141.5 52.4 133.3Q42.3 125.8 27.7 135.2 M27.7 135.2Q15.6 135.5 7.4 121.2Q19.8 119.8 27.7 135.2 M30.8 124.6Q40.4 130.9 54.1 123.6Q44.8 116.1 30.8 124.6 M30.8 124.6Q19.3 124.5 11.9 110.8Q23.7 109.7 30.8 124.6 M34 114.5Q42.9 120.8 56.1 114.3Q47.6 107 34 114.5 M34 114.5Q23.2 114 16.7 100.8Q27.9 100.3 34 114.5 M37.5 104.9Q45.6 111.1 58.2 105.5Q50.5 98.3 37.5 104.9 M37.5 104.9Q27.3 104.1 21.7 91.5Q32.2 91.3 37.5 104.9 M41.2 95.8Q48.5 101.9 60.6 97.1Q53.6 90.1 41.2 95.8 M41.2 95.8Q31.7 94.7 26.9 82.6Q36.7 82.9 41.2 95.8 M45.1 87.2Q51.7 93.2 63.1 89.2Q56.9 82.5 45.1 87.2 M45.1 87.2Q36.3 85.8 32.3 74.4Q41.5 75 45.1 87.2 M49.2 79.1Q55.1 85 65.8 81.8Q60.4 75.2 49.2 79.1 M49.2 79.1Q41.1 77.4 37.9 66.7Q46.4 67.7 49.2 79.1 M53.6 71.6Q58.7 77.2 68.7 74.8Q64 68.5 53.6 71.6 M53.6 71.6Q46.2 69.6 43.8 59.6Q51.5 60.9 53.6 71.6 M58.1 64.5Q62.5 70 71.8 68.2Q67.8 62.2 58.1 64.5 M58.1 64.5Q51.5 62.4 49.8 53.1Q56.8 54.6 58.1 64.5 M62.9 57.9Q66.6 63.1 75.1 62.1Q71.8 56.4 62.9 57.9 M62.9 57.9Q57 55.7 56 47.1Q62.3 48.9 62.9 57.9 M68 51.9Q71 56.7 78.7 56.3Q76 51 68 51.9 M68 51.9Q62.8 49.5 62.3 41.8Q67.9 43.8 68 51.9 M73.2 46.4Q75.6 50.8 82.4 50.9Q80.4 46.1 73.2 46.4 M73.2 46.4Q68.8 43.9 68.8 37.1Q73.6 39.2 73.2 46.4 M78.7 41.3Q80.5 45.4 86.4 45.8Q84.9 41.5 78.7 41.3 M78.7 41.3Q75 39 75.4 33Q79.4 35.1 78.7 41.3" stroke-width=".9"/><path d="M89.9 34.1 L89.6 34 L89.4 33.8 L89.2 33.4 L89.3 32.9 L89.5 32.4 L90 32 L90.6 31.8 L91.4 31.8 L92.1 32.1 L92.8 32.7 L93.3 33.5 L93.4 34.5 L93.2 35.6 L92.5 36.6 L91.6 37.4 L90.3 37.8 L88.9 37.8 L87.6 37.2 L86.4 36.3 L85.6 34.9 L85.3 33.2 L85.6 31.5 L86.5 29.9 L87.8 28.7 L89.7 27.9 L91.7 27.8 L93.7 28.4 L95.4 29.7 L96.7 31.5 L97.3 33.7" stroke-width="1.3"/></g></svg>
+  <h1><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#5eead4" d="M21 15.5v-1.8l-8-5V3.5a1.5 1.5 0 0 0-3 0v5.2l-8 5v1.8l8-2.4v5.1l-2 1.5v1.4l3.5-1 3.5 1v-1.4l-2-1.5v-5.1z"/></svg><span data-tr="h1">奧克蘭機場實時航班</span></h1>
+  <p class="sub" data-tr="sub">奧克蘭國際機場 (AKL)・離港閘口一目了然</p>
+  <div class="hd">
+    <label for="lang" data-tr="lang">語言</label><select id="lang"></select>
+    <div class="fontc" role="group" id="fontc">
+      <button type="button" id="fDec" data-tra="fontDec">A−</button>
+      <button type="button" id="fReset" data-tra="fontReset">A</button>
+      <button type="button" id="fInc" data-tra="fontInc">A+</button>
+    </div>
+  </div>
+</header>
+<div class="fpwrap" aria-hidden="true"><svg class="flightpath" viewBox="0 0 400 26" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 20 C80 4 160 4 240 14 S360 22 400 6" fill="none" stroke="#5eead4" stroke-opacity=".55" stroke-width="1.4" stroke-dasharray="6 6" vector-effect="non-scaling-stroke"/><path d="M0 24 H400" stroke="#6d63ff" stroke-opacity=".5" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><svg class="fpplane" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#5eead4" d="M21 15.5v-1.8l-8-5V3.5a1.5 1.5 0 0 0-3 0v5.2l-8 5v1.8l8-2.4v5.1l-2 1.5v1.4l3.5-1 3.5 1v-1.4l-2-1.5v-5.1z"/></svg></div>
+<section id="upd" aria-live="polite">
+  <div class="updrow">
+    <div>
+      <div><span data-tr="upd">資料更新時間：</span><span class="big" id="updTime">—</span></div>
+      <div class="small" id="updNote"></div>
+    </div>
+    <button type="button" id="refresh" data-tr="refresh">重新整理</button>
+  </div>
+</section>
+<nav class="tabs" role="tablist" id="tabs">
+  <button type="button" role="tab" id="tabDep" aria-selected="true" data-tr="tabDep">🛫 離港</button>
+  <button type="button" role="tab" id="tabArr" aria-selected="false" data-tr="tabArr">🛬 到港</button>
+</nav>
+<main id="listView">
+  <div class="panel">
+    <div class="search">
+      <div class="field">
+        <label for="qGate" data-tr="gateSearch">搜尋閘口</label>
+        <div class="row"><input id="qGate" class="gateq" inputmode="text" autocomplete="off" maxlength="16" placeholder="例：16" data-trp="gatePh"><button type="button" class="clr" id="cGate" data-tra="clear">✕</button></div>
+        <p class="qhint" id="gHint" hidden></p>
+      </div>
+      <div class="field fl">
+        <label for="qFlight" data-tr="flightSearch">搜尋航班編號／城市</label>
+        <div class="row"><input id="qFlight" autocomplete="off" maxlength="30" placeholder="例：NZ 282" data-trp="flightPh"><button type="button" class="clr" id="cFlight" data-tra="clear">✕</button></div>
+      </div>
+    </div>
+    <details id="chipsBox"><summary><span data-tr="gatesInUse">使用中閘口</span> (<span id="chipsN">0</span>)</summary><div class="chips" id="chips"></div></details>
+    <div class="opts">
+      <div class="field"><label for="fTerm" data-tr="term">客運大樓</label><select id="fTerm"><option value="" data-tr="termAll">全部</option><option value="1" data-tr="t1">T1 國際</option><option value="2" data-tr="t2">T2 國內</option></select></div>
+      <div class="field"><label for="fSort" data-tr="sort">排序</label><select id="fSort"><option value="time" data-tr="sortTime">時間</option><option value="gate" data-tr="sortGate">閘口</option></select></div>
+      <label class="chk"><input type="checkbox" id="fRecent" checked><span data-tr="recent">只顯示未來同最近 30 分鐘嘅航班</span></label>
+    </div>
+  </div>
+  <div class="slotbar"><span id="slotLbl"></span><button type="button" id="loadNext"></button></div>
+  <div id="count" aria-live="polite"></div>
+  <p class="tapHint" id="tapHint" data-tr="tapHint"></p>
+  <div id="list"></div>
+</main>
+<section id="pillarView" hidden aria-live="polite"></section>
+<footer>
+  <div id="attrib"><span data-tr="src">航班資料來源：</span><a href="https://aerodatabox.com" id="adbLink">AeroDataBox</a></div>
+  <p data-tr="times">所有時間均為奧克蘭當地時間。</p>
+  <p data-tr="unofficial">非官方網站，與任何航空公司或機場無關。</p>
+  <p data-tr="disclaimer">資料可能有延誤或者唔完整，請以航空公司同機場顯示屏為準。</p>
+  <svg class="korus" viewBox="0 0 160 100" aria-hidden="true" focusable="false"><g fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round"><path d="M42.1 40 L42.4 40.6 L42.6 41.3 L42.5 42.1 L42.2 42.9 L41.7 43.7 L40.8 44.4 L39.8 44.9 L38.6 45.1 L37.3 45 L35.9 44.5 L34.7 43.7 L33.6 42.5 L32.8 41.1 L32.4 39.4 L32.3 37.5 L32.8 35.6 L33.7 33.8 L35 32.2 L36.8 30.9 L38.9 30 L41.3 29.6 L43.8 29.8 L46.2 30.6 L48.5 32 L50.4 34 L51.9 36.4 L52.8 39.2 L53.1 42.2 L52.6 45.3 L51.4 48.3 L49.4 50.9 L46.9 53.1 L43.8 54.8 L40.3 55.6 L36.7 55.7 L33 54.9 L29.5 53.2 L26.5 50.7 L24 47.5 L22.4 43.7 L21.6 39.6 L21.8 35.3 L23 31.1 L25.1 27.2 L28.2 23.8 L32.1 21.2 L36.5 19.5 L41.3 18.8 L46.2 19.3 L51 20.9 L55.3 23.7 L59 27.4 L61.8 31.9 L63.4 37 L63.9 42.5 L63 48 L60.9 53.3 L57.6 58 L53.3 61.9 L48 64.7"/><path d="M90.6 30.1 L90.3 30.4 L90.2 30.9 L90.2 31.4 L90.4 32 L90.7 32.5 L91.2 33 L91.8 33.4 L92.5 33.6 L93.4 33.7 L94.2 33.5 L95.1 33.2 L96 32.6 L96.7 31.9 L97.2 30.9 L97.6 29.8 L97.7 28.5 L97.5 27.3 L97 26 L96.3 24.9 L95.2 23.8 L93.9 23 L92.5 22.5 L90.9 22.3 L89.2 22.4 L87.5 23 L86 23.8 L84.6 25.1 L83.5 26.6 L82.7 28.4 L82.3 30.4 L82.3 32.5 L82.8 34.6 L83.7 36.5 L85.1 38.3 L86.9 39.8 L88.9 41 L91.3 41.6 L93.7 41.8 L96.3 41.4 L98.7 40.5 L100.9 39.1 L102.9 37.2 L104.4 34.9 L105.4 32.3 L105.8 29.4 L105.7 26.5 L104.9 23.6 L103.5 20.9 L101.5 18.5 L99.1 16.5 L96.2 15.1 L93 14.2 L89.7 14.1 L86.3 14.7 L83.1 16 L80.2 17.9 L77.7 20.5 L75.8 23.6 L74.5 27 L74 30.7" stroke="#8b83ff"/><path d="M130.3 52.9 L130.2 53.1 L130 53.3 L129.7 53.5 L129.4 53.6 L129 53.6 L128.6 53.5 L128.2 53.3 L127.8 53 L127.5 52.6 L127.2 52.2 L127 51.6 L127 51 L127.1 50.4 L127.3 49.7 L127.6 49.1 L128.1 48.6 L128.8 48.1 L129.5 47.8 L130.3 47.6 L131.2 47.5 L132.1 47.6 L133 48 L133.8 48.5 L134.6 49.1 L135.2 50 L135.6 51 L135.9 52 L136 53.2 L135.8 54.4 L135.4 55.5 L134.8 56.6 L134 57.6 L133 58.4 L131.8 59 L130.4 59.4 L129 59.5 L127.6 59.4 L126.1 58.9 L124.8 58.2 L123.6 57.3 L122.5 56.1 L121.7 54.6 L121.2 53.1 L121 51.4 L121.1 49.6 L121.5 47.9 L122.3 46.3 L123.3 44.8 L124.7 43.5 L126.3 42.5 L128.1 41.8 L130.1 41.5 L132.1 41.5 L134.1 41.9 L136 42.7 L137.8 43.8 L139.3 45.3 L140.6 47.1 L141.5 49.1 L142 51.3"/><path d="M40 66 C60 90 100 88 120 70 M92 48 C95 65 100 75 112 82 M130 64 C128 72 124 78 118 82" stroke-opacity=".7"/></g></svg>
+</footer>
+<script>
+"use strict";
+const PROXY_URL = "https://akl-flights-proxy.ytonywong.workers.dev/";
+const TZ = "Pacific/Auckland", CACHE_MIN = 15;
+const LANGS=[["zh-Hant","繁體中文"],["zh-Hans","简体中文"],["en","English"],["ja","日本語"],["mi","Te Reo Māori"],["ko","한국어"]];
+const ST_KEYS=["Unknown","Expected","EnRoute","CheckIn","Boarding","GateClosed","Departed","Delayed","Approaching","Arrived","Canceled","Diverted","CanceledUncertain"];
+const I18N={
+"zh-Hant":{gatePh:"例：16",flightPh:"例：NZ 282",title:"奧克蘭機場實時航班（離港閘口）",h1:"奧克蘭機場實時航班",sub:"奧克蘭國際機場 (AKL)・離港閘口一目了然",lang:"語言",fontDec:"字體縮細",fontReset:"標準字體",fontInc:"字體放大",
+upd:"資料更新時間{C}",ago:"{n} 分鐘前",just:"啱啱更新",checking:"正在檢查最新資料…（下面係上次嘅資料）",never:"未有資料，載入中…",stale:"⚠️ 未能取得最新資料，顯示上次儲存嘅資料",every:"伺服器每 {n} 分鐘最多向資料來源更新一次",refresh:"重新整理",aklTime:"奧克蘭時間",
+tabDep:"🛫 離港",tabArr:"🛬 到港",gateSearch:"搜尋閘口",flightSearch:"搜尋航班編號／城市",clear:"清除",gatesInUse:"按閘口篩選",term:"客運大樓",termAll:"全部",t1:"T1 國際",t2:"T2 國內",sort:"排序",sortTime:"按時間",sortGate:"按閘口",recent:"只顯示未來同最近 30 分鐘嘅航班",
+slot:"時段：{r}",loadNext:"➕ 載入下一個時段（{r}）",nextDone:"已載入：{r}",count:"共 {n} 班航班",none:"冇符合條件嘅航班",noneHint:"試吓清除搜尋、取消「只顯示未來」，或者載入下一個時段。",
+to:"往",from:"來自",sched:"預定",est:"預計",depT:"起飛",arrT:"降落",desk:"報到櫃台",belt:"行李帶",gate:"閘口",tba:"未公布",cs:"聯營航班",today:"今日",tomorrow:"明日",
+err:"暫時未能載入資料，請稍後再試。",errCap:"今日嘅更新次數已經用晒（保護免費額度），請遲啲再試。",errSetup:"伺服器未設定好（請檢查 Worker 嘅 RAPIDAPI_KEY）。",
+src:"航班資料來源{C}",times:"所有時間均為奧克蘭當地時間。",disclaimer:"資料可能有延誤或者唔完整，請以航空公司同機場顯示屏為準。",
+back:"← 返回列表",gateNext:"下一班離港",gateFlights:"閘口 {g} 嘅離港航班",gateNone:"呢個閘口喺已載入嘅時段暫時冇航班",tapHint:"撳閘口卡可以睇閘口柱",parsed:"搜尋閘口 {g}",openPillar:"打開閘口 {g} 嘅閘口柱",unofficial:"非官方網站，與任何航空公司或機場無關。",
+st:{Unknown:"未知",Expected:"按時",EnRoute:"飛行中",CheckIn:"辦理登機",Boarding:"登機中",GateClosed:"閘口已關",Departed:"已起飛",Delayed:"延誤",Approaching:"即將抵達",Arrived:"已抵達",Canceled:"取消",Diverted:"改降",CanceledUncertain:"可能取消"}},
+"zh-Hans":{gatePh:"例：16",flightPh:"例：NZ 282",title:"奥克兰机场实时航班（离港登机口）",h1:"奥克兰机场实时航班",sub:"奥克兰国际机场 (AKL)・离港登机口一目了然",lang:"语言",fontDec:"字体缩小",fontReset:"标准字体",fontInc:"字体放大",
+upd:"数据更新时间{C}",ago:"{n} 分钟前",just:"刚刚更新",checking:"正在检查最新数据…（下面是上次的数据）",never:"暂无数据，加载中…",stale:"⚠️ 未能获取最新数据，显示上次保存的数据",every:"服务器每 {n} 分钟最多向数据源更新一次",refresh:"刷新",aklTime:"奥克兰时间",
+tabDep:"🛫 离港",tabArr:"🛬 到港",gateSearch:"搜索登机口",flightSearch:"搜索航班号／城市",clear:"清除",gatesInUse:"按登机口筛选",term:"航站楼",termAll:"全部",t1:"T1 国际",t2:"T2 国内",sort:"排序",sortTime:"按时间",sortGate:"按登机口",recent:"只显示未来及最近 30 分钟的航班",
+slot:"时段：{r}",loadNext:"➕ 加载下一个时段（{r}）",nextDone:"已加载：{r}",count:"共 {n} 个航班",none:"没有符合条件的航班",noneHint:"请尝试清除搜索、取消「只显示未来」，或加载下一个时段。",
+to:"往",from:"来自",sched:"计划",est:"预计",depT:"起飞",arrT:"降落",desk:"值机柜台",belt:"行李转盘",gate:"登机口",tba:"未公布",cs:"代码共享",today:"今天",tomorrow:"明天",
+err:"暂时无法加载数据，请稍后再试。",errCap:"今天的更新次数已用完（保护免费额度），请稍后再试。",errSetup:"服务器尚未设置好（请检查 Worker 的 RAPIDAPI_KEY）。",
+src:"航班数据来源{C}",times:"所有时间均为奥克兰当地时间。",disclaimer:"数据可能有延误或不完整，请以航空公司及机场显示屏为准。",
+back:"← 返回列表",gateNext:"下一班离港",gateFlights:"登机口 {g} 的离港航班",gateNone:"此登机口在已加载时段暂无航班",tapHint:"点按登机口卡片可查看登机口柱",parsed:"搜索登机口 {g}",openPillar:"打开登机口 {g} 的登机口柱",unofficial:"非官方网站，与任何航空公司或机场无关。",
+st:{Unknown:"未知",Expected:"按时",EnRoute:"飞行中",CheckIn:"值机中",Boarding:"登机中",GateClosed:"登机口已关闭",Departed:"已起飞",Delayed:"延误",Approaching:"即将抵达",Arrived:"已抵达",Canceled:"取消",Diverted:"备降",CanceledUncertain:"可能取消"}},
+"en":{gatePh:"e.g. 16",flightPh:"e.g. NZ 282",title:"Auckland Airport live flights (departure gates)",h1:"Auckland Airport Live Flights",sub:"Auckland Airport (AKL) · departure gates at a glance",lang:"Language",fontDec:"Smaller text",fontReset:"Standard text",fontInc:"Larger text",
+upd:"Data updated{C}",ago:"{n} min ago",just:"just now",checking:"Checking for newer data… (showing last data below)",never:"No data yet, loading…",stale:"⚠️ Could not get the latest data; showing the last saved data",every:"The server refreshes from the data source at most every {n} minutes",refresh:"Refresh",aklTime:"Auckland time",
+tabDep:"🛫 Departures",tabArr:"🛬 Arrivals",gateSearch:"Search gate",flightSearch:"Search flight number / city",clear:"Clear",gatesInUse:"Filter by gate",term:"Terminal",termAll:"All",t1:"T1 International",t2:"T2 Domestic",sort:"Sort",sortTime:"By time",sortGate:"By gate",recent:"Only upcoming flights and the last 30 minutes",
+slot:"Period: {r}",loadNext:"➕ Load next period ({r})",nextDone:"Loaded: {r}",count:"{n} flights",none:"No matching flights",noneHint:"Try clearing the search, unticking “Only upcoming”, or loading the next period.",
+to:"To",from:"From",sched:"Scheduled",est:"Estimated",depT:"Took off",arrT:"Landed",desk:"Check-in",belt:"Baggage belt",gate:"Gate",tba:"TBA",cs:"Codeshare",today:"Today",tomorrow:"Tomorrow",
+err:"Flight data is not available right now. Please try again later.",errCap:"Today's update limit has been reached (to protect the free quota). Please try again later.",errSetup:"The server is not set up yet (check the Worker's RAPIDAPI_KEY).",
+src:"Flight data source{C}",times:"All times are Auckland local time.",disclaimer:"Data may be delayed or incomplete. Always check with your airline and the airport screens.",
+back:"← Back to list",gateNext:"Next departure",gateFlights:"Departures from gate {g}",gateNone:"No flights at this gate in the loaded periods",tapHint:"Tap a gate card to see the gate pillar",parsed:"Searching gate {g}",openPillar:"Open gate {g} pillar",unofficial:"Unofficial site. Not affiliated with any airline or airport.",
+st:{Unknown:"Unknown",Expected:"On time",EnRoute:"En route",CheckIn:"Check-in",Boarding:"Boarding",GateClosed:"Gate closed",Departed:"Departed",Delayed:"Delayed",Approaching:"Approaching",Arrived:"Arrived",Canceled:"Cancelled",Diverted:"Diverted",CanceledUncertain:"Possibly cancelled"}},
+"ja":{gatePh:"例：16",flightPh:"例：NZ 282",title:"オークランド空港 リアルタイム運航情報（出発ゲート）",h1:"オークランド空港 運航情報",sub:"オークランド空港 (AKL)・出発ゲートがひと目でわかる",lang:"言語",fontDec:"文字を小さく",fontReset:"標準の文字",fontInc:"文字を大きく",
+upd:"データ更新時刻{C}",ago:"{n} 分前",just:"たった今",checking:"最新データを確認中…（下は前回のデータ）",never:"データなし、読み込み中…",stale:"⚠️ 最新データを取得できません。前回保存したデータを表示しています",every:"サーバーは最大 {n} 分ごとにデータ提供元から更新します",refresh:"更新",aklTime:"オークランド時間",
+tabDep:"🛫 出発",tabArr:"🛬 到着",gateSearch:"ゲートを検索",flightSearch:"便名／都市を検索",clear:"クリア",gatesInUse:"ゲートで絞り込み",term:"ターミナル",termAll:"すべて",t1:"T1 国際線",t2:"T2 国内線",sort:"並べ替え",sortTime:"時刻順",sortGate:"ゲート順",recent:"これからの便と直近30分の便のみ表示",
+slot:"時間帯：{r}",loadNext:"➕ 次の時間帯を読み込む（{r}）",nextDone:"読み込み済み：{r}",count:"{n} 便",none:"条件に合う便はありません",noneHint:"検索をクリアするか、「これからの便のみ」を外すか、次の時間帯を読み込んでください。",
+to:"行き先",from:"出発地",sched:"定刻",est:"予定",depT:"離陸",arrT:"着陸",desk:"チェックイン",belt:"手荷物ターンテーブル",gate:"ゲート",tba:"未定",cs:"共同運航",today:"今日",tomorrow:"明日",
+err:"現在データを読み込めません。しばらくしてからお試しください。",errCap:"本日の更新回数の上限に達しました（無料枠の保護）。しばらくしてからお試しください。",errSetup:"サーバーが未設定です（Worker の RAPIDAPI_KEY を確認してください）。",
+src:"運航データ提供{C}",times:"時刻はすべてオークランド現地時間です。",disclaimer:"データには遅れや欠落がある場合があります。必ず航空会社や空港の表示をご確認ください。",
+back:"← 一覧に戻る",gateNext:"次の出発便",gateFlights:"{g} 番ゲートの出発便",gateNone:"読み込んだ時間帯にこのゲートの便はありません",tapHint:"ゲートカードをタップするとゲートの柱を表示します",parsed:"ゲート {g} を検索中",openPillar:"{g} 番ゲートの柱を開く",unofficial:"非公式サイトです。航空会社・空港とは関係ありません。",
+st:{Unknown:"不明",Expected:"定刻",EnRoute:"飛行中",CheckIn:"搭乗手続き中",Boarding:"搭乗中",GateClosed:"ゲート締切",Departed:"出発済み",Delayed:"遅延",Approaching:"まもなく到着",Arrived:"到着済み",Canceled:"欠航",Diverted:"目的地変更",CanceledUncertain:"欠航の可能性"}},
+"mi":{gatePh:"hei tauira: 16",flightPh:"hei tauira: NZ 282",title:"Ngā Rerenga o te Taunga Rererangi o Tāmaki Makaurau",h1:"Ngā Rerenga, Taunga Rererangi o Tāmaki",sub:"Taunga Rererangi o Tāmaki Makaurau (AKL) · ngā kēti wehe",lang:"Reo",fontDec:"Kia iti ake te tuhi",fontReset:"Te rahi noa o te tuhi",fontInc:"Kia nui ake te tuhi",
+upd:"I whakahoutia ngā raraunga{C}",ago:"{n} meneti ki muri",just:"ināianei tonu",checking:"E tirotiro ana mō ngā raraunga hou… (kei raro ngā raraunga o mua)",never:"Kāore anō he raraunga, e uta ana…",stale:"⚠️ Kāore i taea te tiki i ngā raraunga hou; e whakaatu ana i ngā raraunga i penapenatia",every:"Ka whakahou te tūmau i ia {n} meneti te nuinga",refresh:"Whakahou",aklTime:"te wā o Tāmaki",
+tabDep:"🛫 Ngā Wehenga",tabArr:"🛬 Ngā Taenga",gateSearch:"Rapu kēti",flightSearch:"Rapu tau rerenga / tāone",clear:"Ūkui",gatesInUse:"Tātari mā te kēti",term:"Teminera",termAll:"Katoa",t1:"T1 Ā-ao",t2:"T2 Ā-motu",sort:"Raupapa",sortTime:"Mā te wā",sortGate:"Mā te kēti",recent:"Ngā rerenga e heke mai ana me ērā o te 30 meneti kua hipa anake",
+slot:"Wāhanga: {r}",loadNext:"➕ Utaina te wāhanga e whai ake nei ({r})",nextDone:"Kua utaina: {r}",count:"{n} ngā rerenga",none:"Kāore he rerenga e hāngai ana",noneHint:"Ūkuitia te rapu, tangohia te tohu “e heke mai ana”, utaina rānei te wāhanga e whai ake nei.",
+to:"Ki",from:"Mai i",sched:"Kua whakaritea",est:"Matapae",depT:"I wehe",arrT:"I tau",desk:"Takiuru",belt:"Whitiki tueke",gate:"Kēti",tba:"Kāore anō kia mōhiotia",cs:"Tiri waehere",today:"Tēnei rā",tomorrow:"Āpōpō",
+err:"Kāore e wātea ana ngā raraunga i tēnei wā. Whakamātauria anō ā muri ake.",errCap:"Kua tae ki te rohe whakahou o te rā nei. Whakamātauria anō ā muri ake.",errSetup:"Kāore anō te tūmau kia whakaritea (tirohia te RAPIDAPI_KEY o te Worker).",
+src:"Mātāpuna raraunga rerenga{C}",times:"Ko ngā wā katoa he wā o Tāmaki Makaurau.",disclaimer:"Tērā pea ka tōmuri, ka hapa rānei ngā raraunga. Me tirotiro i te kamupene rererangi me ngā mata o te taunga rererangi.",
+back:"← Hoki ki te rārangi",gateNext:"Te wehenga e whai ake nei",gateFlights:"Ngā wehenga i te kēti {g}",gateNone:"Kāore he rerenga i tēnei kēti i ngā wāhanga kua utaina",tapHint:"Pātō i tētahi kāri kēti kia kite i te pou kēti",parsed:"E rapu ana i te kēti {g}",openPillar:"Whakatuwheratia te pou o te kēti {g}",unofficial:"Ehara tēnei i te pae ōkawa. Kāore e hono ana ki tētahi kamupene rererangi, taunga rererangi rānei.",
+st:{Unknown:"Kāore e mōhiotia",Expected:"I te wā tika",EnRoute:"Kei te rere",CheckIn:"Takiuru",Boarding:"E eke ana",GateClosed:"Kua kati te kēti",Departed:"Kua wehe",Delayed:"Kua tōmuri",Approaching:"E tata mai ana",Arrived:"Kua tae mai",Canceled:"Kua whakakorea",Diverted:"Kua huri kē",CanceledUncertain:"Tērā pea kua whakakorea"}},
+"ko":{gatePh:"예: 16",flightPh:"예: NZ 282",title:"오클랜드 공항 실시간 항공편 (출발 게이트)",h1:"오클랜드 공항 실시간 항공편",sub:"오클랜드 공항 (AKL) · 출발 게이트 한눈에 보기",lang:"언어",fontDec:"글자 작게",fontReset:"기본 글자",fontInc:"글자 크게",
+upd:"데이터 업데이트{C}",ago:"{n}분 전",just:"방금",checking:"최신 데이터 확인 중… (아래는 이전 데이터)",never:"데이터 없음, 불러오는 중…",stale:"⚠️ 최신 데이터를 가져오지 못해 마지막으로 저장된 데이터를 표시합니다",every:"서버는 최대 {n}분마다 데이터 제공처에서 업데이트합니다",refresh:"새로고침",aklTime:"오클랜드 시간",
+tabDep:"🛫 출발",tabArr:"🛬 도착",gateSearch:"게이트 검색",flightSearch:"편명／도시 검색",clear:"지우기",gatesInUse:"게이트별 필터",term:"터미널",termAll:"전체",t1:"T1 국제선",t2:"T2 국내선",sort:"정렬",sortTime:"시간순",sortGate:"게이트순",recent:"예정 항공편과 최근 30분 항공편만 표시",
+slot:"시간대: {r}",loadNext:"➕ 다음 시간대 불러오기 ({r})",nextDone:"불러옴: {r}",count:"항공편 {n}편",none:"조건에 맞는 항공편이 없습니다",noneHint:"검색을 지우거나 「예정 항공편만」을 해제하거나 다음 시간대를 불러오세요.",
+to:"목적지",from:"출발지",sched:"예정",est:"변경 예정",depT:"이륙",arrT:"착륙",desk:"체크인",belt:"수하물 벨트",gate:"게이트",tba:"미정",cs:"공동운항",today:"오늘",tomorrow:"내일",
+err:"지금은 데이터를 불러올 수 없습니다. 잠시 후 다시 시도하세요.",errCap:"오늘 업데이트 한도에 도달했습니다(무료 한도 보호). 잠시 후 다시 시도하세요.",errSetup:"서버가 아직 설정되지 않았습니다(Worker의 RAPIDAPI_KEY 확인).",
+src:"항공편 데이터 제공{C}",times:"모든 시간은 오클랜드 현지 시간입니다.",disclaimer:"데이터가 지연되거나 불완전할 수 있습니다. 항공사와 공항 안내 화면을 꼭 확인하세요.",
+back:"← 목록으로 돌아가기",gateNext:"다음 출발편",gateFlights:"{g}번 게이트 출발편",gateNone:"불러온 시간대에 이 게이트의 항공편이 없습니다",tapHint:"게이트 카드를 누르면 게이트 기둥을 볼 수 있습니다",parsed:"게이트 {g} 검색 중",openPillar:"{g}번 게이트 기둥 열기",unofficial:"비공식 사이트입니다. 항공사나 공항과 관련이 없습니다.",
+st:{Unknown:"알 수 없음",Expected:"정시",EnRoute:"비행 중",CheckIn:"체크인",Boarding:"탑승 중",GateClosed:"게이트 마감",Departed:"출발함",Delayed:"지연",Approaching:"곧 도착",Arrived:"도착함",Canceled:"결항",Diverted:"회항",CanceledUncertain:"결항 가능성"}}
+};
+const $=(id)=>document.getElementById(id);
+const esc=(s)=>String(s??"").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let LANG=localStorage.getItem("aklLang"); if(!I18N[LANG]) LANG="zh-Hant";
+const T=(k,v={})=>{v={C:/^(zh|ja)/.test(LANG)?"：":": ",...v};return String(I18N[LANG][k]??I18N["zh-Hant"][k]??k).replace(/\{(\w+)\}/g,(_,x)=>v[x]??"");};
+const FONTS=["f1","f2","f3","f4","f5","f6"]; let FONT=+(localStorage.getItem("aklFont")??1); if(!(FONT>=0&&FONT<FONTS.length)) FONT=1;
+
+// ---- state ----
+// one response per 12-hour slot holds BOTH departures and arrivals (Worker uses direction=Both)
+const S={dir:"dep",data:{},nextWanted:false,loading:0,error:null,gate:"",q:"",pillar:null,pushed:false,scrollY:0};
+const keyLS=(slot)=>`aklData:v2:${slot}`;
+function restore(){try{Object.keys(localStorage).filter((k)=>k.startsWith("aklData:v1:")).forEach((k)=>localStorage.removeItem(k));}catch(e){}
+  for(const slot of ["now","next"]){try{const d=JSON.parse(localStorage.getItem(keyLS(slot))||"null");if(d&&d.fetchedAt&&Array.isArray(d.departures)&&Date.now()-Date.parse(d.fetchedAt)<12*3600e3&&d.slot&&d.slot.id>=slotIdNow(slot))S.data[slot]=d;}catch(e){}}}
+function aklNow(){const p={};for(const x of new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date()))p[x.type]=x.value;return p;}
+function slotIdNow(which){const p=aklNow();let d=`${p.year}-${p.month}-${p.day}`,h=+p.hour<12?0:1;if(which==="next"){if(h===0)h=1;else{const t=new Date(Date.UTC(+p.year,+p.month-1,+p.day+1));d=t.toISOString().slice(0,10);h=0;}}return d+(h?"PM":"AM");}
+const todayAkl=()=>{const p=aklNow();return `${p.year}-${p.month}-${p.day}`;};
+const aklHM=(iso)=>new Intl.DateTimeFormat("en-GB",{timeZone:TZ,hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date(iso));
+// "2026-10-18 22:55+13:00" -> {date, hm, ms}
+function lt(s){if(!s)return null;const m=/^(\d{4}-\d\d-\d\d)[ T](\d\d:\d\d)(?::\d\d)?([+-]\d\d:?\d\d|Z)?/.exec(s);if(!m)return null;const ms=Date.parse(`${m[1]}T${m[2]}:00${m[3]?(m[3].length===5?m[3].slice(0,3)+":"+m[3].slice(3):m[3]):"+13:00"}`);return {date:m[1],hm:m[2],ms};}
+function dayLabel(date){const t=todayAkl();if(date===t)return T("today");const d=new Date(t+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+1);if(date===d.toISOString().slice(0,10))return T("tomorrow");return date.slice(8,10)+"/"+date.slice(5,7);}
+const slotRange=(slot)=>{if(!slot)return"";return `${dayLabel(slot.from.slice(0,10))} ${slot.from.slice(11)}–${slot.to.slice(11)}`;};
+function predictSlot(which){const id=slotIdNow(which),d=id.slice(0,10),pm=id.endsWith("PM");return {id,from:`${d}T${pm?"12:00":"00:00"}`,to:`${d}T${pm?"23:59":"11:59"}`};}
+
+// ---- fetching ----
+async function load(slot="now",force=false){
+  const cur=S.data[slot];
+  if(!force&&cur&&!cur._err&&Date.now()-Date.parse(cur.fetchedAt)<CACHE_MIN*60e3&&cur.slot.id===slotIdNow(slot)){render();return;}
+  S.loading++;S.error=null;render();
+  try{
+    const r=await fetch(`${PROXY_URL}flights?slot=${slot}`,{cache:"no-store"});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.ok||!Array.isArray(j.departures)){S.error=j.error==="daily_cap_reached"||j.error==="quota_exhausted"?"errCap":j.error==="server_not_configured"?"errSetup":"err";}
+    else{S.data[slot]=j;try{localStorage.setItem(keyLS(slot),JSON.stringify(j));}catch(e){}}
+  }catch(e){S.error="err";}
+  S.loading=Math.max(0,S.loading-1);render();
+}
+function refreshAll(force){const tasks=[load("now",force)];if(S.nextWanted)tasks.push(load("next",force));return Promise.all(tasks);}
+
+// ---- filtering ----
+const norm=(s)=>String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+// gate search accepts "18", "gate 18", "Gate18", "G18", "閘口18", "18號閘口", "登机口18", "ゲート18", "18番ゲート", "게이트 18번", "kēti 18", full-width digits…
+const GATE_WORDS=/\bTE\b|GATES?|閘口|闸口|登機閘口|登機口|登机口|ゲート|게이트|KĒTI|KETI|KŪAHA|KUAHA|號|号|番|번|NO\.?|#/g;
+function parseGate(s){let x=String(s||"").normalize("NFKC").toUpperCase().replace(GATE_WORDS," ").replace(/[^A-Z0-9]/g,"");return x.replace(/^G(?=\d)/,"");}
+function bestTime(f){return lt(f.rwy)||lt(f.rev)||lt(f.pre)||lt(f.sch);}
+function flights(){
+  const key=S.dir==="dep"?"departures":"arrivals";let list=[];const seen=new Set();
+  for(const slot of ["now","next"]){const x=S.data[slot];if(!x||!Array.isArray(x[key]))continue;if(slot==="next"&&!S.nextWanted)continue;for(const f of x[key]){const k=f.no+"|"+f.sch;if(seen.has(k))continue;seen.add(k);list.push(f);}}
+  return list;
+}
+// "16" matches gate 16, 16L and 16R (but not 160); "16L" matches only 16L
+function gateMatch(gate,g){const x=norm(gate);return x===g||(x.startsWith(g)&&/^\d+$/.test(g)&&/^[A-Z]+$/.test(x.slice(g.length)));}
+function filtered(){
+  let list=flights();const term=$("fTerm").value,recent=$("fRecent").checked,g=parseGate(S.gate),q=norm(S.q),now=Date.now();
+  if(term)list=list.filter((f)=>f.term===term);
+  if(recent)list=list.filter((f)=>{const b=bestTime(f);return !b||b.ms>=now-30*60e3;});
+  if(g)list=list.filter((f)=>gateMatch(f.gate,g));
+  if(q)list=list.filter((f)=>[f.no,...(f.codes||[])].some((n)=>norm(n).includes(q))||norm(f.ap.name).includes(q)||norm(f.ap.iata)===q||norm(f.al).includes(q));
+  const byT=(a,b)=>(lt(a.sch)?.ms||0)-(lt(b.sch)?.ms||0);
+  if($("fSort").value==="gate")list.sort((a,b)=>{if(!a.gate!==!b.gate)return a.gate?-1:1;return String(a.gate).localeCompare(String(b.gate),undefined,{numeric:true})||byT(a,b);});else list.sort(byT);
+  return list;
+}
+function stClass(st){return {Boarding:"s-ok",CheckIn:"s-ok",Expected:"s-info",EnRoute:"s-info",Approaching:"s-info",GateClosed:"s-warn",Delayed:"s-warn",Diverted:"s-warn",CanceledUncertain:"s-warn",Canceled:"s-bad",Departed:"s-done",Arrived:"s-done"}[st]||"s-done";}
+
+// ---- rendering ----
+const KORU1="<svg class=\"koru k1\" viewBox=\"0 0 100 100\" aria-hidden=\"true\" focusable=\"false\"><g fill=\"none\" stroke-width=\"1.6\" stroke-linecap=\"round\"><path d=\"M53.2 50 L53.6 50.7 L53.8 51.6 L53.7 52.6 L53.5 53.7 L52.9 54.7 L52 55.6 L50.9 56.4 L49.6 56.9 L48.1 57.1 L46.5 56.9 L44.8 56.4 L43.3 55.6 L41.9 54.3 L40.7 52.7 L39.9 50.8 L39.5 48.7 L39.6 46.4 L40.1 44.2 L41.2 42 L42.7 40 L44.7 38.3 L47.1 37 L49.8 36.2 L52.7 36 L55.6 36.4 L58.5 37.5 L61.2 39.1 L63.6 41.4 L65.5 44.2 L66.8 47.3 L67.4 50.8 L67.4 54.5 L66.5 58.1 L64.9 61.5 L62.5 64.7 L59.5 67.3 L55.9 69.3 L51.9 70.6 L47.7 71 L43.3 70.5 L39.1 69.2 L35.1 66.9 L31.6 63.8 L28.8 60 L26.8 55.6 L25.7 50.8 L25.5 45.7 L26.5 40.7 L28.5 35.9 L31.5 31.5 L35.4 27.7 L40 24.8 L45.3 22.8 L50.9 22 L56.7 22.3 L62.3 23.8 L67.7 26.5 L72.4 30.2 L76.4 35 L79.3 40.5 L81.1 46.6 L81.6 53 L80.8 59.5 L78.6 65.7 L75.2 71.5 L70.6 76.5 L65 80.6 L58.6 83.4 L51.6 84.9 L44.5 85 L37.3 83.5 L30.5 80.7 L24.4 76.4 L19.2 70.9 L15.2 64.4 L12.5 57.2 L11.4 49.4 L11.9 41.5 L14 33.7 L17.6 26.5\" stroke=\"#5eead4\" stroke-opacity=\".55\"/><path d=\"M47.8 50.1 L47.4 49.5 L47.2 48.7 L47.2 47.9 L47.5 47 L48.1 46.1 L48.9 45.3 L50 44.8 L51.3 44.5 L52.7 44.5 L54.2 45 L55.5 45.8 L56.8 47 L57.7 48.5 L58.2 50.3 L58.4 52.3 L58 54.4 L57.1 56.4 L55.7 58.2 L53.8 59.7 L51.6 60.7 L49.1 61.2 L46.4 61.1 L43.7 60.4 L41.2 59 L39 56.9 L37.3 54.4 L36.2 51.4 L35.9 48.2 L36.2 44.9 L37.4 41.6 L39.4 38.7 L42 36.2 L45.3 34.3 L48.9 33.2 L52.9 33 L56.9 33.7 L60.7 35.3 L64 37.9 L66.8 41.2 L68.8 45.2 L69.8 49.6 L69.8 54.2 L68.7 58.8 L66.6 63.1 L63.4 66.9 L59.4 69.9 L54.7 71.9 L49.5 72.8 L44.2 72.5 L39 71 L34.2 68.3 L30.1 64.4 L27 59.7 L24.9 54.2 L24.2 48.4 L24.8 42.4 L26.9 36.6 L30.2 31.4 L34.7 27 L40.2 23.8\" stroke=\"#8b83ff\" stroke-opacity=\".5\"/></g></svg>",KORU2="<svg class=\"koru k2\" viewBox=\"0 0 100 100\" aria-hidden=\"true\" focusable=\"false\"><g fill=\"none\" stroke-width=\"1.6\" stroke-linecap=\"round\"><path d=\"M53.2 50 L53.6 50.7 L53.8 51.6 L53.7 52.6 L53.5 53.7 L52.9 54.7 L52 55.6 L50.9 56.4 L49.6 56.9 L48.1 57.1 L46.5 56.9 L44.8 56.4 L43.3 55.6 L41.9 54.3 L40.7 52.7 L39.9 50.8 L39.5 48.7 L39.6 46.4 L40.1 44.2 L41.2 42 L42.7 40 L44.7 38.3 L47.1 37 L49.8 36.2 L52.7 36 L55.6 36.4 L58.5 37.5 L61.2 39.1 L63.6 41.4 L65.5 44.2 L66.8 47.3 L67.4 50.8 L67.4 54.5 L66.5 58.1 L64.9 61.5 L62.5 64.7 L59.5 67.3 L55.9 69.3 L51.9 70.6 L47.7 71 L43.3 70.5 L39.1 69.2 L35.1 66.9 L31.6 63.8 L28.8 60 L26.8 55.6 L25.7 50.8 L25.5 45.7 L26.5 40.7 L28.5 35.9 L31.5 31.5 L35.4 27.7 L40 24.8 L45.3 22.8 L50.9 22 L56.7 22.3 L62.3 23.8 L67.7 26.5 L72.4 30.2 L76.4 35 L79.3 40.5 L81.1 46.6 L81.6 53 L80.8 59.5 L78.6 65.7 L75.2 71.5 L70.6 76.5 L65 80.6 L58.6 83.4 L51.6 84.9 L44.5 85 L37.3 83.5 L30.5 80.7 L24.4 76.4 L19.2 70.9 L15.2 64.4 L12.5 57.2 L11.4 49.4 L11.9 41.5 L14 33.7 L17.6 26.5\" stroke=\"#5eead4\" stroke-opacity=\".55\"/><path d=\"M47.8 50.1 L47.4 49.5 L47.2 48.7 L47.2 47.9 L47.5 47 L48.1 46.1 L48.9 45.3 L50 44.8 L51.3 44.5 L52.7 44.5 L54.2 45 L55.5 45.8 L56.8 47 L57.7 48.5 L58.2 50.3 L58.4 52.3 L58 54.4 L57.1 56.4 L55.7 58.2 L53.8 59.7 L51.6 60.7 L49.1 61.2 L46.4 61.1 L43.7 60.4 L41.2 59 L39 56.9 L37.3 54.4 L36.2 51.4 L35.9 48.2 L36.2 44.9 L37.4 41.6 L39.4 38.7 L42 36.2 L45.3 34.3 L48.9 33.2 L52.9 33 L56.9 33.7 L60.7 35.3 L64 37.9 L66.8 41.2 L68.8 45.2 L69.8 49.6 L69.8 54.2 L68.7 58.8 L66.6 63.1 L63.4 66.9 L59.4 69.9 L54.7 71.9 L49.5 72.8 L44.2 72.5 L39 71 L34.2 68.3 L30.1 64.4 L27 59.7 L24.9 54.2 L24.2 48.4 L24.8 42.4 L26.9 36.6 L30.2 31.4 L34.7 27 L40.2 23.8\" stroke=\"#8b83ff\" stroke-opacity=\".5\"/></g></svg>",EMPTY_ART="<svg viewBox=\"0 0 64 64\" aria-hidden=\"true\" focusable=\"false\"><g fill=\"none\" stroke=\"#5eead4\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M33.9 32 L34.2 32.5 L34.4 33.2 L34.3 34 L33.9 34.8 L33.3 35.5 L32.5 36.1 L31.5 36.5 L30.3 36.6 L29.1 36.3 L27.8 35.7 L26.7 34.8 L25.9 33.6 L25.3 32.1 L25.1 30.4 L25.4 28.6 L26.1 26.9 L27.3 25.3 L28.9 24.1 L30.8 23.2 L33 22.8 L35.3 22.9 L37.5 23.7 L39.6 25 L41.4 26.8 L42.7 29.1 L43.5 31.8 L43.6 34.6 L42.9 37.4 L41.6 40.1 L39.6 42.5 L37 44.3 L34 45.5 L30.7 46 L27.3 45.6 L23.9 44.4 L20.9 42.4 L18.5 39.6 L16.7 36.3 L15.7 32.5 L15.7 28.5 L16.7 24.6 L18.6 20.9 L21.4 17.8 L25 15.3 L29.1 13.7 L33.6 13.2 L38.1 13.8 L42.5 15.5 L46.4 18.2 L49.6 21.8 L51.9 26.2 L53 31.1 L53 36.2 L51.7 41.3 L49.2 45.9 L45.6 49.9 L41.1 53 L35.9 54.9 L30.3 55.6 L24.6 54.8\"/></g></svg>";
+
+// ---- gate-sign card (departures) ----
+function timesOf(f){const s=lt(f.sch),rev=lt(f.rev)||lt(f.pre),rw=lt(f.rwy);const main=rw||rev||s;return {s,rev,rw,main,changed:!!(rev&&s&&rev.hm!==s.hm)};}
+function signCard(f,clickable=true){
+  const {s,rev,rw,main,changed}=timesOf(f);
+  const dl=main&&main.date!==todayAkl()?`<span class="date">${esc(dayLabel(main.date))}</span>`:"";
+  const sub=[];if(s)sub.push(`${T("sched")} ${s.hm}`);if(rev&&!rw)sub.push(`${T("est")} ${rev.hm}`);if(rw)sub.push(`${T("depT")} ${rw.hm}`);
+  if(f.term)sub.push(f.term==="1"?T("t1"):f.term==="2"?T("t2"):"T"+f.term);if(f.desk)sub.push(`${T("desk")} ${f.desk}`);
+  const cls=f.st==="Canceled"?"cx":(f.st==="Departed")?"done":f.st==="Boarding"?"board":"";
+  const st=I18N[LANG].st[f.st]||I18N.en.st[f.st]||f.st;const act=clickable&&f.gate;
+  return `<article class="card sc ${cls}${f.gate?"":" nogate"}"${act?` role="button" tabindex="0" data-g="${esc(f.gate)}"`:""} data-no="${esc(f.no)}" data-gate="${esc(f.gate)}" data-sch="${esc(f.sch)}">
+<div class="sc-row"><div class="sc-gate"><span class="l">${esc(T("gate"))}</span><span class="n${f.gate?"":" na"}">${esc(f.gate||T("tba"))}</span></div>
+<div class="sc-sign"><div class="sc-top"><div class="sc-fl"><div class="sc-fno">${esc(f.no)}</div><div class="sc-al">${esc(f.al)}</div></div>
+<div class="sc-time">${dl}${esc(main?main.hm:"--:--")}${(changed||rw)&&s?`<s aria-label="${esc(T("sched"))}">${esc(s.hm)}</s>`:""}</div></div>
+<div class="sc-dest"><span class="to">${esc(T("to"))}</span><b>${esc(f.ap.name)}</b>${f.ap.iata?`<span class="code">${esc(f.ap.iata)}</span>`:""}</div></div></div>
+<div class="sc-foot"><span class="st ${stClass(f.st)}">${esc(st)}</span>${f.codes&&f.codes.length?`<span class="sc-cs">${esc(T("cs"))}: ${esc(f.codes.join(", "))}</span>`:""}</div>
+<div class="sc-meta">${esc(sub.join(" · "))}</div>${act?`<span class="sr">${esc(T("openPillar",{g:f.gate}))}</span>`:""}</article>`;
+}
+// ---- gate pillar view ----
+function gateFlights(g){
+  const key=norm(g),now=Date.now(),recent=$("fRecent").checked;const list=[];const seen=new Set();
+  for(const slot of ["now","next"]){const x=S.data[slot];if(!x||!Array.isArray(x.departures))continue;if(slot==="next"&&!S.nextWanted)continue;
+    for(const f of x.departures){const k=f.no+"|"+f.sch;if(seen.has(k)||norm(f.gate)!==key)continue;seen.add(k);list.push(f);}}
+  const out=recent?list.filter((f)=>{const b=bestTime(f);return !b||b.ms>=now-30*60e3;}):list;
+  return out.sort((a,b)=>(lt(a.sch)?.ms||0)-(lt(b.sch)?.ms||0));
+}
+function nextAtGate(list){const now=Date.now();return list.find((f)=>!["Departed","Canceled"].includes(f.st)&&((bestTime(f)?.ms||0)>=now-10*60e3))||null;}
+function pillarHTML(g){
+  const list=gateFlights(g),nx=nextAtGate(list);let next=`<p class="pl-empty">${esc(T(S.data.now?"gateNone":"never"))}</p>`;
+  if(nx){const {s,main}=timesOf(nx);const st=I18N[LANG].st[nx.st]||I18N.en.st[nx.st]||nx.st;
+    next=`<div class="pl-next" id="plNext" data-no="${esc(nx.no)}"><div class="top"><div><div class="fno">${esc(nx.no)}</div><div class="sc-al">${esc(nx.al)}</div></div><div class="tm">${main&&main.date!==todayAkl()?`<span class="date">${esc(dayLabel(main.date))}</span> `:""}${esc(main?main.hm:"--:--")}</div></div>
+<div class="dest"><small>${esc(T("to"))}</small>${esc(nx.ap.name)}${nx.ap.iata?` <span class="code">${esc(nx.ap.iata)}</span>`:""}</div><div class="ft"><span class="st ${stClass(nx.st)}">${esc(st)}</span></div></div>`;}
+  return `<button type="button" class="backbtn" id="backBtn">${esc(T("back"))}</button>
+<div class="pl-scene">${KORU1}${KORU2}
+<div class="pl-sign" role="img" aria-label="${esc(T("gate")+" "+g)}"><span class="l">${esc(T("gate"))}</span><span class="n" id="plGate">${esc(g)}</span><span class="bar"></span></div>
+<div class="pl-body"><p class="pl-label">${esc(T("gateNext"))}</p>${next}</div><div class="pl-base"></div><div class="pl-floor"></div></div>
+<div class="pl-list"><h2 id="plTitle">${esc(T("gateFlights",{g}))}</h2><div id="plCount" class="sc-meta">${esc(T("count",{n:list.length}))}</div>
+<div id="plList">${list.length?list.map((f)=>signCard(f,false)).join(""):`<div class="empty">${EMPTY_ART}<p>${esc(T("gateNone"))}</p></div>`}</div></div>`;
+}
+const hashGate=()=>{const m=/^#gate-(.+)$/.exec(location.hash);try{return m?norm(decodeURIComponent(m[1])):null;}catch(e){return null;}};
+function openPillar(g){S.scrollY=window.scrollY;S.pillar=g;history.pushState({aklGate:g},"","#gate-"+encodeURIComponent(g));S.pushed=true;render();window.scrollTo(0,0);const b=$("backBtn");if(b)b.focus({preventScroll:true});}
+function closePillar(){if(S.pushed&&history.state&&history.state.aklGate){history.back();return;}S.pillar=null;history.replaceState(null,"",location.pathname+location.search);render();}
+function afterClose(){render();window.scrollTo(0,S.scrollY||0);}
+function card(f){
+  const dep=S.dir==="dep",s=lt(f.sch),rev=lt(f.rev)||lt(f.pre),rw=lt(f.rwy);
+  const main=rw||rev||s;const changed=rev&&s&&rev.hm!==s.hm;
+  const dl=main&&main.date!==todayAkl()?`<span class="date">${esc(dayLabel(main.date))}</span> `:"";
+  let times=`<div class="time">${dl}${esc(main?main.hm:"--:--")}${(changed||rw)&&s?`<s aria-label="${esc(T("sched"))}">${esc(s.hm)}</s>`:""}</div>`;
+  const sub=[];if(s)sub.push(`${T("sched")} ${s.hm}`);if(rev&&!rw)sub.push(`${T("est")} ${rev.hm}`);if(rw)sub.push(`${dep?T("depT"):T("arrT")} ${rw.hm}`);
+  const meta=[];if(f.term)meta.push(f.term==="1"?T("t1"):f.term==="2"?T("t2"):"T"+f.term);if(dep&&f.desk)meta.push(`${T("desk")} ${f.desk}`);if(!dep&&f.belt)meta.push(`${T("belt")} ${f.belt}`);
+  const cls=f.st==="Canceled"?"cx":(f.st==="Departed"||f.st==="Arrived")?"done":f.st==="Boarding"?"board":"";
+  const st=I18N[LANG].st[f.st]||I18N.en.st[f.st]||f.st;
+  return `<article class="card ${cls}" data-no="${esc(f.no)}" data-gate="${esc(f.gate)}" data-sch="${esc(f.sch)}">
+<div class="main">${times}<div class="meta">${esc(sub.join(" · "))}</div>
+<div><span class="fno">${esc(f.no)}</span> <span class="al">${esc(f.al)}</span></div>
+${f.codes&&f.codes.length?`<div class="cs">${esc(T("cs"))}: ${esc(f.codes.join(", "))}</div>`:""}
+<div class="city">${esc(dep?T("to"):T("from"))} ${esc(f.ap.name)}${f.ap.iata?` (${esc(f.ap.iata)})`:""}</div>
+<div class="meta">${esc(meta.join(" · "))}</div>
+<span class="st ${stClass(f.st)}">${esc(st)}</span></div>
+<div class="gatebox ${f.gate?"":"tba"}"><span class="lbl">${esc(T("gate"))}</span><span class="g">${esc(f.gate||T("tba"))}</span></div></article>`;
+}
+function render(){
+  const d=S.data,cur=d.now;
+  // updated-time banner (always shown before/while fetching)
+  const upd=$("upd");upd.classList.toggle("stale",!!(S.error&&cur)||!!(cur&&cur.stale));
+  if(cur){const age=Math.max(0,Math.round((Date.now()-Date.parse(cur.fetchedAt))/60e3));$("updTime").textContent=`${aklHM(cur.fetchedAt)} (${T("aklTime")})`;
+    let note=age<1?T("just"):T("ago",{n:age});if(S.loading)note+=" · "+T("checking");else if(cur.stale&&/daily_cap|quota/.test(cur.staleReason||""))note+=" · "+T("stale")+" · "+T("errCap");else if(S.error||cur.stale)note+=" · "+T("stale");note+=" · "+T("every",{n:CACHE_MIN});$("updNote").textContent=note;}
+  else{$("updTime").textContent="—";$("updNote").textContent=S.loading?T("never"):(S.error?T(S.error):"");}
+  $("tabDep").setAttribute("aria-selected",S.dir==="dep");$("tabArr").setAttribute("aria-selected",S.dir==="arr");
+  $("slotLbl").textContent=T("slot",{r:slotRange(cur?cur.slot:predictSlot("now"))});
+  const nx=d.next&&S.nextWanted?d.next:null;$("loadNext").textContent=nx?T("nextDone",{r:slotRange(nx.slot)}):T("loadNext",{r:slotRange(predictSlot("next"))});$("loadNext").disabled=!!nx;
+  // gate chips (departures with a gate, upcoming)
+  const all=flights(),now=Date.now();const gates=[...new Set(all.filter((f)=>f.gate&&(!$("fRecent").checked||(bestTime(f)?.ms||0)>=now-30*60e3)).map((f)=>f.gate))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  $("chipsBox").hidden=!gates.length;$("chipsN").textContent=gates.length;$("chips").innerHTML=gates.map((g)=>`<button type="button" aria-pressed="${norm(g)===parseGate(S.gate)}" data-g="${esc(g)}">${esc(g)}</button>`).join("");
+  const pg=parseGate(S.gate);$("gHint").hidden=!pg||pg===S.gate.trim().toUpperCase();$("gHint").textContent=pg?T("parsed",{g:pg}):"";
+  const pv=!!S.pillar;$("listView").hidden=pv;$("tabs").hidden=pv;$("pillarView").hidden=!pv;if(pv)$("pillarView").innerHTML=pillarHTML(S.pillar);
+  $("tapHint").hidden=S.dir!=="dep";
+  const list=filtered();
+  $("count").textContent=cur?T("count",{n:list.length}):"";
+  let html=S.error&&!cur?`<p class="err">${esc(T(S.error))}</p>`:"";
+  if(cur)html+=list.length?list.map((f)=>S.dir==="dep"?signCard(f):card(f)).join(""):`<div class="empty">${EMPTY_ART}<p><b>${esc(T("none"))}</b></p><p>${esc(T("noneHint"))}</p></div>`;
+  $("list").innerHTML=html;
+}
+function applyLang(){
+  document.documentElement.lang=LANG;$("lang").value=LANG;document.title=T("title");
+  document.querySelectorAll("[data-tr]").forEach((e)=>{e.textContent=T(e.dataset.tr);});
+  document.querySelectorAll("[data-trp]").forEach((e)=>{e.placeholder=T(e.dataset.trp);});
+  document.querySelectorAll("[data-tra]").forEach((e)=>{e.setAttribute("aria-label",T(e.dataset.tra));e.title=T(e.dataset.tra);});
+  $("fontc").setAttribute("aria-label",T("fontReset"));
+  render();
+}
+function applyFont(){document.documentElement.className=FONTS[FONT];localStorage.setItem("aklFont",FONT);$("fReset").setAttribute("aria-pressed",FONT===1);}
+
+// ---- events ----
+$("lang").innerHTML=LANGS.map(([k,v])=>`<option value="${k}" lang="${k}">${v}</option>`).join("");
+$("lang").onchange=()=>{LANG=$("lang").value;localStorage.setItem("aklLang",LANG);applyLang();};
+$("fDec").onclick=()=>{FONT=Math.max(0,FONT-1);applyFont();};$("fInc").onclick=()=>{FONT=Math.min(FONTS.length-1,FONT+1);applyFont();};$("fReset").onclick=()=>{FONT=1;applyFont();};
+// switching tabs needs no new request: the same response has both directions
+$("tabDep").onclick=()=>{S.dir="dep";render();load("now");};$("tabArr").onclick=()=>{S.dir="arr";render();load("now");};
+$("qGate").oninput=(e)=>{S.gate=e.target.value;render();};$("qFlight").oninput=(e)=>{S.q=e.target.value;render();};
+$("cGate").onclick=()=>{$("qGate").value="";S.gate="";render();};$("cFlight").onclick=()=>{$("qFlight").value="";S.q="";render();};
+$("chips").onclick=(e)=>{const b=e.target.closest("button");if(!b)return;const g=norm(b.dataset.g)===parseGate(S.gate)?"":b.dataset.g;S.gate=g;$("qGate").value=g;render();};
+["fTerm","fSort","fRecent"].forEach((id)=>$(id).onchange=render);
+$("refresh").onclick=()=>refreshAll(false);
+$("loadNext").onclick=()=>{S.nextWanted=true;load("next");};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAll(false);});
+setInterval(()=>{if(!document.hidden){render();refreshAll(false);}},60e3);
+$("list").onclick=(e)=>{const c=e.target.closest(".card.sc[data-g]");if(c)openPillar(c.dataset.g);};
+$("list").onkeydown=(e)=>{if(e.key!=="Enter"&&e.key!==" ")return;const c=e.target.closest(".card.sc[data-g]");if(c){e.preventDefault();openPillar(c.dataset.g);}};
+$("pillarView").onclick=(e)=>{if(e.target.closest("#backBtn"))closePillar();};
+window.addEventListener("popstate",(e)=>{const g=(e.state&&e.state.aklGate)||hashGate();const was=S.pillar;S.pillar=g||null;if(!g){S.pushed=false;if(was)afterClose();else render();}else{render();if(!was)window.scrollTo(0,0);}});
+restore();applyFont();S.pillar=hashGate();applyLang();load("now");
+</script>
+</body>
+</html>
