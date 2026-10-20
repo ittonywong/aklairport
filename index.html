@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Auckland Airport (AKL) departures and arrivals with gates">
 <link rel="icon" href="data:,">
-<title>奧克蘭機場實時航班</title>
+<title>Auckland Airport live flights (departure gates)</title>
 <style>
 /* ===== palette A: light grey-blue + sage green (CSS variables) ===== */
 :root{color-scheme:light;
@@ -156,7 +156,28 @@ details summary{min-height:var(--tap);display:flex;align-items:center;font-weigh
 .pl-label{font-size:.85rem;color:var(--plLabel);margin:0 0 .3rem;font-weight:700}
 .pl-empty{color:var(--plLabel);text-align:center;padding:1rem .5rem}
 .pl-base{margin:0 auto;width:min(100%,25rem);height:2.6rem;background:var(--plBase);clip-path:polygon(16% 0,84% 0,100% 100%,0 100%)}
-.pl-floor{height:1.2rem;margin:0 -.5rem;background:var(--plFloor)}
+.pl-floor{height:5.75rem;margin:0 -.5rem;background:var(--plFloor);overflow:hidden;pointer-events:none;contain:layout paint}
+/* ---- gate floor scene (round 7): decorative little people, follows the shown flight's status ---- */
+.pl-floor svg{position:absolute;bottom:.2rem;display:block;overflow:visible}
+.pf-door{right:3%}.pf-bench{left:3%;bottom:.9rem!important}
+.pf-w{position:absolute;left:0;right:0;bottom:var(--b,.2rem);height:62px;transform:translateX(var(--x,30%));animation:pfWalk var(--d,18s) linear calc(var(--dl,0s) - var(--t,0s)) infinite}
+.pf-w svg{bottom:0;left:0}.pf-w.rtl{animation-name:pfWalkR}.pf-w.rtl svg{transform:scaleX(-1)}
+.pf-w .lg{transform-box:fill-box;transform-origin:50% 0;animation:pfLeg var(--st,.5s) ease-in-out calc(0s - var(--t,0s)) infinite alternate}
+.pf-w .lg+.lg{animation-direction:alternate-reverse}
+.pf-w .am{transform-box:fill-box;transform-origin:50% 0;animation:pfLeg var(--st,.5s) ease-in-out calc(0s - var(--t,0s)) infinite alternate-reverse}
+.pf-q{position:absolute;right:calc(3% + 60px);bottom:.2rem;display:flex;align-items:flex-end;height:62px}
+.pf-q svg{position:static;margin-left:-6px;animation:pfBob 2.6s ease-in-out calc(0s - var(--t,0s)) infinite}
+.pf-q svg:nth-child(2n){animation-delay:calc(-1.1s - var(--t,0s))}.pf-q svg:nth-child(3n){animation-delay:calc(-1.9s - var(--t,0s))}
+.pf-q svg:last-child{animation:pfBoard 7s ease-in-out calc(0s - var(--t,0s)) infinite}
+.pf-stop{right:calc(3% + 66px);animation:pfBob 3s ease-in-out calc(0s - var(--t,0s)) infinite}
+.zz path{opacity:.85;animation:pfZ 3.6s ease-out calc(0s - var(--t,0s)) infinite}.zz path+path{animation-delay:calc(-1.2s - var(--t,0s))}.zz path+path+path{animation-delay:calc(-2.4s - var(--t,0s))}
+@keyframes pfWalk{from{transform:translateX(-90px)}to{transform:translateX(100%)}}
+@keyframes pfWalkR{from{transform:translateX(100%)}to{transform:translateX(-90px)}}
+@keyframes pfLeg{from{transform:rotate(18deg)}to{transform:rotate(-18deg)}}
+@keyframes pfBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+@keyframes pfBoard{0%,50%{transform:none;opacity:1}75%{transform:translateX(34px);opacity:0}76%{transform:none;opacity:0}100%{transform:none;opacity:1}}
+@keyframes pfZ{0%{opacity:0;transform:translate(0,0)}25%{opacity:.9}100%{opacity:0;transform:translate(6px,-12px)}}
+@media (prefers-reduced-motion:reduce){.pl-floor *{animation:none!important}}
 .pl-list h2{font-size:1.15rem;margin:1rem 0 .3rem}
 #plCount{background:var(--bg);display:inline-block;padding:0 .15rem}
 .pl-list h2{background:var(--bg);display:inline-block;padding:0 .15rem}
@@ -177,58 +198,58 @@ footer .korus{display:block;width:9rem;height:auto;margin:.6rem auto 0;opacity:.
 <header>
   <svg class="fern" viewBox="23.2 17.5 171.9 316.5" aria-hidden="true" focusable="false"><path class="lf" d="M40.5 296.5Q53.2 294.4 64 287.1Q49.7 287.6 40.5 296.5ZM40.5 296.5Q31.6 287.3 27.2 275Q38.5 283.9 40.5 296.5ZM44.2 285.6Q60 283.1 73.5 274.3Q55.6 274.6 44.2 285.6ZM44.2 285.6Q33.2 274 27.9 258.7Q41.8 269.9 44.2 285.6ZM47.9 274.8Q66.6 272.1 82.6 261.8Q61.6 262 47.9 274.8ZM47.9 274.8Q35.1 261 29 242.9Q45.3 256.3 47.9 274.8ZM51.8 264Q72.8 261.2 90.9 249.8Q67.3 249.8 51.8 264ZM51.8 264Q37.6 248.3 31 228Q49.1 243.2 51.8 264ZM55.8 253.3Q78.3 250.5 97.9 238.5Q72.5 238.2 55.8 253.3ZM55.8 253.3Q40.7 236.3 33.9 214.4Q53.2 230.9 55.8 253.3ZM59.9 242.6Q83.1 240 103.4 227.9Q77.3 227.2 59.9 242.6ZM59.9 242.6Q44.6 224.9 37.9 202.3Q57.5 219.5 59.9 242.6ZM64.1 232Q86.6 229.7 106.4 218.2Q81.2 217.3 64.1 232ZM64.1 232Q49.5 214.7 43.2 192.7Q62 209.6 64.1 232ZM68.5 221.3Q90.3 219.4 109.6 208.5Q85.2 207.3 68.5 221.3ZM68.5 221.3Q54.5 204.4 48.7 183.1Q66.7 199.6 68.5 221.3ZM73 210.8Q94.1 209.3 112.8 199Q89.2 197.5 73 210.8ZM73 210.8Q59.7 194.3 54.4 173.6Q71.5 189.9 73 210.8ZM77.6 200.3Q98 199.1 116.2 189.4Q93.5 187.7 77.6 200.3ZM77.6 200.3Q65 184.3 60.1 164.2Q76.5 180.1 77.6 200.3ZM82.4 189.8Q102 188.9 119.7 179.8Q97.8 177.9 82.4 189.8ZM82.4 189.8Q70.5 174.2 66.1 154.8Q81.6 170.3 82.4 189.8ZM87.3 179.5Q106.2 178.8 123.3 170.4Q102.3 168.2 87.3 179.5ZM87.3 179.5Q76.1 164.3 72.1 145.7Q86.8 160.7 87.3 179.5ZM92.3 169.3Q110.4 168.9 126.9 161.1Q106.8 158.7 92.3 169.3ZM92.3 169.3Q81.8 154.6 78.2 136.7Q92.1 151.3 92.3 169.3ZM97.6 159Q114.9 158.9 130.7 151.6Q111.6 149.1 97.6 159ZM97.6 159Q87.7 144.8 84.6 127.6Q97.6 141.8 97.6 159ZM102.9 149Q119.3 149.1 134.5 142.4Q116.4 139.7 102.9 149ZM102.9 149Q93.7 135.3 90.9 118.9Q103.2 132.6 102.9 149ZM108.4 138.8Q124 139.2 138.6 133Q121.4 130.2 108.4 138.8ZM108.4 138.8Q99.9 125.7 97.5 110.1Q109 123.3 108.4 138.8ZM114.1 128.8Q128.8 129.4 142.6 123.8Q126.4 120.9 114.1 128.8ZM114.1 128.8Q106.2 116.4 104.2 101.6Q114.8 114.2 114.1 128.8ZM119.9 119Q133.7 119.8 146.8 114.7Q131.6 111.8 119.9 119ZM119.9 119Q112.7 107.2 111 93.3Q120.7 105.3 119.9 119ZM125.9 109.1Q138.8 110.1 151.1 105.5Q137 102.5 125.9 109.1ZM125.9 109.1Q119.4 98 118 84.9Q126.9 96.3 125.9 109.1ZM132 99.6Q143.9 100.6 155.4 96.6Q142.3 93.6 132 99.6ZM132 99.6Q126.1 89.1 125 77Q133.1 87.7 132 99.6ZM138.3 89.9Q149.3 91 159.9 87.5Q147.9 84.6 138.3 89.9ZM138.3 89.9Q133 80.2 132.2 69Q139.5 79 138.3 89.9ZM144.8 80.4Q154.7 81.6 164.4 78.5Q153.6 75.7 144.8 80.4ZM144.8 80.4Q140.1 71.5 139.5 61.4Q146 70.5 144.8 80.4ZM151.3 71.1Q160.2 72.3 168.9 69.7Q159.2 67 151.3 71.1ZM151.3 71.1Q147.3 63.1 146.9 54Q152.6 62.3 151.3 71.1ZM158 61.8Q165.8 63 173.5 60.9Q165.1 58.4 158 61.8ZM158 61.8Q154.6 54.7 154.4 46.8Q159.3 54.1 158 61.8ZM165 52.6Q171.6 53.8 178.1 52.1Q171 49.8 165 52.6ZM165 52.6Q162.2 46.6 162.1 39.8Q166.2 46.1 165 52.6ZM172 43.6Q177.3 44.7 182.6 43.4Q176.9 41.4 172 43.6ZM172 43.6Q169.8 38.7 169.9 33.2Q173.1 38.4 172 43.6ZM179.3 34.7Q183.2 35.5 187.1 34.6Q182.9 33.1 179.3 34.7ZM179.3 34.7Q177.7 31 177.8 27Q180.1 30.8 179.3 34.7ZM186.6 26Q188.8 26.5 191.1 26Q188.7 25.1 186.6 26ZM186.6 26Q185.7 23.9 185.8 21.5Q187.1 23.8 186.6 26Z"/><path class="mr" d="M31.3 330.4 L32.4 326.7 L33.6 322.9 L34.7 319.1 L35.9 315.4 L37 311.6 L38.2 307.8 L39.4 304 L40.6 300.2 L41.9 296.4 L43.1 292.6 L44.4 288.8 L45.7 285 L47 281.1 L48.3 277.3 L49.6 273.5 L51 269.6 L52.3 265.7 L53.7 261.9 L55.1 258 L56.6 254.2 L58 250.3 L59.5 246.4 L61 242.5 L62.5 238.6 L64 234.7 L65.6 230.9 L67.2 227 L68.8 223.1 L70.4 219.2 L72 215.3 L73.7 211.4 L75.4 207.5 L77.1 203.6 L78.8 199.6 L80.6 195.7 L82.3 191.8 L84.2 187.9 L86 184 L87.8 180.1 L89.7 176.2 L91.6 172.3 L93.6 168.4 L95.5 164.5 L97.5 160.6 L99.5 156.7 L101.6 152.8 L103.6 148.9 L105.7 145 L107.8 141.1 L110 137.2 L112.2 133.3 L114.4 129.4 L116.6 125.6 L118.9 121.7 L121.2 117.8 L123.5 114 L125.9 110.1 L128.2 106.2 L130.7 102.4 L133.1 98.5 L135.6 94.7 L138.1 90.9 L140.6 87.1 L143.2 83.2 L145.8 79.4 L148.5 75.6 L151.1 71.8 L153.8 68 L156.6 64.2 L159.4 60.5 L162.2 56.7 L165 52.9 L167.9 49.2 L170.8 45.5 L173.8 41.7 L176.7 38 L179.8 34.3 L182.8 30.6 L185.9 26.9 L189 23.2 L188.9 23.1 L185.8 26.8 L182.6 30.5 L179.6 34.1 L176.5 37.8 L173.5 41.5 L170.5 45.2 L167.6 49 L164.7 52.7 L161.8 56.4 L159 60.2 L156.2 63.9 L153.4 67.7 L150.7 71.5 L148 75.3 L145.3 79.1 L142.6 82.9 L140 86.7 L137.5 90.5 L134.9 94.3 L132.4 98.1 L129.9 101.9 L127.5 105.8 L125.1 109.6 L122.7 113.5 L120.3 117.3 L118 121.2 L115.7 125 L113.4 128.9 L111.2 132.8 L109 136.7 L106.8 140.5 L104.7 144.4 L102.5 148.3 L100.4 152.2 L98.4 156.1 L96.3 160 L94.3 163.9 L92.3 167.8 L90.4 171.7 L88.4 175.6 L86.5 179.5 L84.6 183.4 L82.7 187.3 L80.9 191.2 L79.1 195.1 L77.3 199 L75.5 202.9 L73.8 206.8 L72.1 210.7 L70.4 214.6 L68.7 218.5 L67 222.4 L65.4 226.2 L63.8 230.1 L62.2 234 L60.7 237.9 L59.1 241.8 L57.6 245.7 L56.1 249.5 L54.6 253.4 L53.1 257.3 L51.7 261.1 L50.3 265 L48.9 268.8 L47.5 272.7 L46.1 276.5 L44.7 280.4 L43.4 284.2 L42.1 288 L40.8 291.8 L39.5 295.7 L38.2 299.5 L37 303.3 L35.8 307 L34.5 310.8 L33.3 314.6 L32.2 318.4 L31 322.1 L29.8 325.9 L28.7 329.6Z"/></svg>
   <div class="hrow">
-    <h1><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#5eead4" d="M21 15.5v-1.8l-8-5V3.5a1.5 1.5 0 0 0-3 0v5.2l-8 5v1.8l8-2.4v5.1l-2 1.5v1.4l3.5-1 3.5 1v-1.4l-2-1.5v-5.1z"/></svg><span data-tr="h1">奧克蘭機場實時航班</span></h1>
+    <h1><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#5eead4" d="M21 15.5v-1.8l-8-5V3.5a1.5 1.5 0 0 0-3 0v5.2l-8 5v1.8l8-2.4v5.1l-2 1.5v1.4l3.5-1 3.5 1v-1.4l-2-1.5v-5.1z"/></svg><span data-tr="h1">Auckland Airport Live Flights</span></h1>
     <div class="tools">
-      <div class="langw"><label for="lang" class="sr" data-tr="lang">語言</label><span class="lcode" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.3"/><path d="M1.7 8h12.6M8 1.7c-3.2 3.6-3.2 9 0 12.6M8 1.7c3.2 3.6 3.2 9 0 12.6"/></g></svg><span id="lcodeT">繁</span></span><select id="lang"></select></div>
+      <div class="langw"><label for="lang" class="sr" data-tr="lang">Language</label><span class="lcode" aria-hidden="true"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.3"/><path d="M1.7 8h12.6M8 1.7c-3.2 3.6-3.2 9 0 12.6M8 1.7c3.2 3.6 3.2 9 0 12.6"/></g></svg><span id="lcodeT">EN</span></span><select id="lang"></select></div>
     </div>
   </div>
-  <p class="sub" data-tr="sub">奧克蘭國際機場 (AKL)・離港閘口一目了然</p>
+  <p class="sub" data-tr="sub">Auckland Airport (AKL) · departure gates at a glance</p>
   <svg class="fpath" viewBox="0 0 400 26" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 20 C80 4 160 4 240 14 S360 22 400 6" fill="none" stroke="#5eead4" stroke-opacity=".55" stroke-width="1.4" stroke-dasharray="6 6" vector-effect="non-scaling-stroke"/><path d="M0 24 H400" stroke="#6d63ff" stroke-opacity=".5" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><svg class="fpplane" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#5eead4" d="M21 15.5v-1.8l-8-5V3.5a1.5 1.5 0 0 0-3 0v5.2l-8 5v1.8l8-2.4v5.1l-2 1.5v1.4l3.5-1 3.5 1v-1.4l-2-1.5v-5.1z"/></svg>
 </header>
 <section id="upd" aria-live="polite">
   <div class="updrow">
     <div class="updtxt">
-      <div><span class="lbl" data-tr="upd">資料更新時間：</span><span class="big" id="updTime">—</span></div>
+      <div><span class="lbl" data-tr="upd">Data updated: </span><span class="big" id="updTime">—</span></div>
       <div class="small" id="updNote"></div>
     </div>
-    <button type="button" id="refresh" data-tr="refresh">重新整理</button>
+    <button type="button" id="refresh" data-tr="refresh">Refresh</button>
   </div>
 </section>
 <nav class="tabs" role="tablist" id="tabs">
-  <button type="button" role="tab" id="tabDep" aria-selected="true" data-tr="tabDep">🛫 離港</button>
-  <button type="button" role="tab" id="tabArr" aria-selected="false" data-tr="tabArr">🛬 到港</button>
+  <button type="button" role="tab" id="tabDep" aria-selected="true" data-tr="tabDep">🛫 Departures</button>
+  <button type="button" role="tab" id="tabArr" aria-selected="false" data-tr="tabArr">🛬 Arrivals</button>
 </nav>
 <main id="listView">
   <div class="panel">
     <div class="search">
       <div class="field">
-        <label for="qGate" data-tr="gateSearch">搜尋閘口</label>
-        <div class="row"><input id="qGate" class="gateq" inputmode="text" autocomplete="off" maxlength="16" placeholder="例：16" data-trp="gatePh"><button type="button" class="clr" id="cGate" data-tra="clear">✕</button></div>
+        <label for="qGate" data-tr="gateSearch">Search gate</label>
+        <div class="row"><input id="qGate" class="gateq" inputmode="text" autocomplete="off" maxlength="16" placeholder="e.g. 16" data-trp="gatePh"><button type="button" class="clr" id="cGate" data-tra="clear">✕</button></div>
         <p class="qhint" id="gHint" hidden></p>
       </div>
       <div class="field fl">
-        <label for="qFlight" data-tr="flightSearch">搜尋航班編號／城市</label>
-        <div class="row"><input id="qFlight" autocomplete="off" maxlength="30" placeholder="例：NZ 282" data-trp="flightPh"><button type="button" class="clr" id="cFlight" data-tra="clear">✕</button></div>
+        <label for="qFlight" data-tr="flightSearch">Search flight number / city</label>
+        <div class="row"><input id="qFlight" autocomplete="off" maxlength="30" placeholder="e.g. NZ 282" data-trp="flightPh"><button type="button" class="clr" id="cFlight" data-tra="clear">✕</button></div>
       </div>
     </div>
-    <details id="chipsBox"><summary><span data-tr="gatesInUse">使用中閘口</span> (<span id="chipsN">0</span>)</summary><div class="chips" id="chips"></div></details>
+    <details id="chipsBox"><summary><span class="chipsT"><span data-tr="gatesInUse">Filter by gate</span><span id="chipsC"> (0)</span></span></summary><div class="chips" id="chips"></div></details>
     <div class="opts">
-      <div class="field"><label for="fTerm" data-tr="term">客運大樓</label><select id="fTerm"><option value="" data-tr="termAll">全部</option><option value="1" data-tr="t1">T1 國際</option><option value="2" data-tr="t2">T2 國內</option></select></div>
-      <div class="field"><label for="fSort" data-tr="sort">排序</label><select id="fSort"><option value="time" data-tr="sortTime">時間</option><option value="gate" data-tr="sortGate">閘口</option></select></div>
-      <label class="chk"><input type="checkbox" id="fRecent" checked><span data-tr="recent">只顯示未來同最近 30 分鐘嘅航班</span></label>
+      <div class="field"><label for="fTerm" data-tr="term">Terminal</label><select id="fTerm"><option value="" data-tr="termAll">All</option><option value="1" data-tr="t1">T1 International</option><option value="2" data-tr="t2">T2 Domestic</option></select></div>
+      <div class="field"><label for="fSort" data-tr="sort">Sort</label><select id="fSort"><option value="time" data-tr="sortTime">By time</option><option value="gate" data-tr="sortGate">By gate</option></select></div>
+      <label class="chk"><input type="checkbox" id="fRecent" checked><span data-tr="recent">Only upcoming flights and the last 30 minutes</span></label>
     </div>
   </div>
   <div class="listhead"><span id="count" aria-live="polite"></span><span id="slotLbl"></span></div>
-  <p class="tapHint" id="tapHint" data-tr="tapHint"></p>
+  <p class="tapHint" id="tapHint" data-tr="tapHint">Tap a gate card to see the gate pillar</p>
   <div id="list"></div>
   <div class="slotbar"><button type="button" id="loadNext"></button></div>
 </main>
 <section id="pillarView" hidden aria-live="polite"></section>
 <footer>
-  <div id="attrib"><span data-tr="src">航班資料來源：</span><a href="https://aerodatabox.com" id="adbLink">AeroDataBox</a></div>
-  <p data-tr="times">所有時間均為奧克蘭當地時間。</p>
-  <p data-tr="unofficial">非官方網站，與任何航空公司或機場無關。</p>
-  <p data-tr="disclaimer">資料可能有延誤或者唔完整，請以航空公司同機場顯示屏為準。</p>
+  <div id="attrib"><span data-tr="src">Flight data source: </span><a href="https://aerodatabox.com" id="adbLink">AeroDataBox</a></div>
+  <p data-tr="times">All times are Auckland local time.</p>
+  <p data-tr="unofficial">Unofficial site. Not affiliated with any airline or airport.</p>
+  <p data-tr="disclaimer">Data may be delayed or incomplete. Always check with your airline and the airport screens.</p>
   <svg class="korus" viewBox="0 0 160 100" aria-hidden="true" focusable="false"><g fill="none" stroke="#5eead4" stroke-width="2" stroke-linecap="round"><path d="M42.1 40 L42.4 40.6 L42.6 41.3 L42.5 42.1 L42.2 42.9 L41.7 43.7 L40.8 44.4 L39.8 44.9 L38.6 45.1 L37.3 45 L35.9 44.5 L34.7 43.7 L33.6 42.5 L32.8 41.1 L32.4 39.4 L32.3 37.5 L32.8 35.6 L33.7 33.8 L35 32.2 L36.8 30.9 L38.9 30 L41.3 29.6 L43.8 29.8 L46.2 30.6 L48.5 32 L50.4 34 L51.9 36.4 L52.8 39.2 L53.1 42.2 L52.6 45.3 L51.4 48.3 L49.4 50.9 L46.9 53.1 L43.8 54.8 L40.3 55.6 L36.7 55.7 L33 54.9 L29.5 53.2 L26.5 50.7 L24 47.5 L22.4 43.7 L21.6 39.6 L21.8 35.3 L23 31.1 L25.1 27.2 L28.2 23.8 L32.1 21.2 L36.5 19.5 L41.3 18.8 L46.2 19.3 L51 20.9 L55.3 23.7 L59 27.4 L61.8 31.9 L63.4 37 L63.9 42.5 L63 48 L60.9 53.3 L57.6 58 L53.3 61.9 L48 64.7"/><path d="M90.6 30.1 L90.3 30.4 L90.2 30.9 L90.2 31.4 L90.4 32 L90.7 32.5 L91.2 33 L91.8 33.4 L92.5 33.6 L93.4 33.7 L94.2 33.5 L95.1 33.2 L96 32.6 L96.7 31.9 L97.2 30.9 L97.6 29.8 L97.7 28.5 L97.5 27.3 L97 26 L96.3 24.9 L95.2 23.8 L93.9 23 L92.5 22.5 L90.9 22.3 L89.2 22.4 L87.5 23 L86 23.8 L84.6 25.1 L83.5 26.6 L82.7 28.4 L82.3 30.4 L82.3 32.5 L82.8 34.6 L83.7 36.5 L85.1 38.3 L86.9 39.8 L88.9 41 L91.3 41.6 L93.7 41.8 L96.3 41.4 L98.7 40.5 L100.9 39.1 L102.9 37.2 L104.4 34.9 L105.4 32.3 L105.8 29.4 L105.7 26.5 L104.9 23.6 L103.5 20.9 L101.5 18.5 L99.1 16.5 L96.2 15.1 L93 14.2 L89.7 14.1 L86.3 14.7 L83.1 16 L80.2 17.9 L77.7 20.5 L75.8 23.6 L74.5 27 L74 30.7" stroke="#8b83ff"/><path d="M130.3 52.9 L130.2 53.1 L130 53.3 L129.7 53.5 L129.4 53.6 L129 53.6 L128.6 53.5 L128.2 53.3 L127.8 53 L127.5 52.6 L127.2 52.2 L127 51.6 L127 51 L127.1 50.4 L127.3 49.7 L127.6 49.1 L128.1 48.6 L128.8 48.1 L129.5 47.8 L130.3 47.6 L131.2 47.5 L132.1 47.6 L133 48 L133.8 48.5 L134.6 49.1 L135.2 50 L135.6 51 L135.9 52 L136 53.2 L135.8 54.4 L135.4 55.5 L134.8 56.6 L134 57.6 L133 58.4 L131.8 59 L130.4 59.4 L129 59.5 L127.6 59.4 L126.1 58.9 L124.8 58.2 L123.6 57.3 L122.5 56.1 L121.7 54.6 L121.2 53.1 L121 51.4 L121.1 49.6 L121.5 47.9 L122.3 46.3 L123.3 44.8 L124.7 43.5 L126.3 42.5 L128.1 41.8 L130.1 41.5 L132.1 41.5 L134.1 41.9 L136 42.7 L137.8 43.8 L139.3 45.3 L140.6 47.1 L141.5 49.1 L142 51.3"/><path d="M40 66 C60 90 100 88 120 70 M92 48 C95 65 100 75 112 82 M130 64 C128 72 124 78 118 82" stroke-opacity=".7"/></g></svg>
 </footer>
 <script>
@@ -240,7 +261,7 @@ const ST_KEYS=["Unknown","Expected","EnRoute","CheckIn","Boarding","GateClosed",
 const I18N={
 "zh-Hant":{gatePh:"例：16",flightPh:"例：NZ 282",title:"奧克蘭機場實時航班（離港閘口）",h1:"奧克蘭機場實時航班",sub:"奧克蘭國際機場 (AKL)・離港閘口一目了然",lang:"語言",
 upd:"資料更新時間{C}",ago:"{n} 分鐘前",just:"啱啱更新",checking:"正在檢查最新資料…（下面係上次嘅資料）",never:"未有資料，載入中…",stale:"⚠️ 未能取得最新資料，顯示上次儲存嘅資料",every:"伺服器每 {n} 分鐘最多向資料來源更新一次",refresh:"重新整理",aklTime:"奧克蘭時間",
-tabDep:"🛫 離港",tabArr:"🛬 到港",gateSearch:"搜尋閘口",flightSearch:"搜尋航班編號／城市",clear:"清除",gatesInUse:"按閘口篩選",term:"客運大樓",termAll:"全部",t1:"T1 國際",t2:"T2 國內",sort:"排序",sortTime:"按時間",sortGate:"按閘口",recent:"只顯示未來同最近 30 分鐘嘅航班",
+tabDep:"🛫 離港",tabArr:"🛬 到港",gateSearch:"搜尋閘口",flightSearch:"搜尋航班編號／城市",clear:"清除",gatesInUse:"按閘口篩選",chipsCount:"（{n}）",term:"客運大樓",termAll:"全部",t1:"T1 國際",t2:"T2 國內",sort:"排序",sortTime:"按時間",sortGate:"按閘口",recent:"只顯示未來同最近 30 分鐘嘅航班",
 slot:"時段：{r}",loadNext:"➕ 載入下一個時段（{r}）",nextDone:"已載入：{r}",count:"共 {n} 班航班",none:"冇符合條件嘅航班",noneHint:"試吓清除搜尋、取消「只顯示未來」，或者載入下一個時段。",
 to:"往",from:"來自",sched:"預定",est:"預計",depT:"起飛",arrT:"降落",desk:"報到櫃台",belt:"行李帶",gate:"閘口",tba:"未公布",cs:"聯營航班",today:"今日",tomorrow:"明日",
 err:"暫時未能載入資料，請稍後再試。",errCap:"今日嘅更新次數已經用晒（保護免費額度），請遲啲再試。",errSetup:"伺服器未設定好（請檢查 Worker 嘅 RAPIDAPI_KEY）。",
@@ -249,7 +270,7 @@ back:"← 返回列表",gateNext:"下一班離港",gateFlights:"閘口 {g} 嘅�
 st:{Unknown:"未知",Expected:"按時",EnRoute:"飛行中",CheckIn:"辦理登機",Boarding:"登機中",GateClosed:"閘口已關",Departed:"已起飛",Delayed:"延誤",Approaching:"即將抵達",Arrived:"已抵達",Canceled:"取消",Diverted:"改降",CanceledUncertain:"可能取消"}},
 "zh-Hans":{gatePh:"例：16",flightPh:"例：NZ 282",title:"奥克兰机场实时航班（离港登机口）",h1:"奥克兰机场实时航班",sub:"奥克兰国际机场 (AKL)・离港登机口一目了然",lang:"语言",
 upd:"数据更新时间{C}",ago:"{n} 分钟前",just:"刚刚更新",checking:"正在检查最新数据…（下面是上次的数据）",never:"暂无数据，加载中…",stale:"⚠️ 未能获取最新数据，显示上次保存的数据",every:"服务器每 {n} 分钟最多向数据源更新一次",refresh:"刷新",aklTime:"奥克兰时间",
-tabDep:"🛫 离港",tabArr:"🛬 到港",gateSearch:"搜索登机口",flightSearch:"搜索航班号／城市",clear:"清除",gatesInUse:"按登机口筛选",term:"航站楼",termAll:"全部",t1:"T1 国际",t2:"T2 国内",sort:"排序",sortTime:"按时间",sortGate:"按登机口",recent:"只显示未来及最近 30 分钟的航班",
+tabDep:"🛫 离港",tabArr:"🛬 到港",gateSearch:"搜索登机口",flightSearch:"搜索航班号／城市",clear:"清除",gatesInUse:"按登机口筛选",chipsCount:"（{n}）",term:"航站楼",termAll:"全部",t1:"T1 国际",t2:"T2 国内",sort:"排序",sortTime:"按时间",sortGate:"按登机口",recent:"只显示未来及最近 30 分钟的航班",
 slot:"时段：{r}",loadNext:"➕ 加载下一个时段（{r}）",nextDone:"已加载：{r}",count:"共 {n} 个航班",none:"没有符合条件的航班",noneHint:"请尝试清除搜索、取消「只显示未来」，或加载下一个时段。",
 to:"往",from:"来自",sched:"计划",est:"预计",depT:"起飞",arrT:"降落",desk:"值机柜台",belt:"行李转盘",gate:"登机口",tba:"未公布",cs:"代码共享",today:"今天",tomorrow:"明天",
 err:"暂时无法加载数据，请稍后再试。",errCap:"今天的更新次数已用完（保护免费额度），请稍后再试。",errSetup:"服务器尚未设置好（请检查 Worker 的 RAPIDAPI_KEY）。",
@@ -258,7 +279,7 @@ back:"← 返回列表",gateNext:"下一班离港",gateFlights:"登机口 {g} �
 st:{Unknown:"未知",Expected:"按时",EnRoute:"飞行中",CheckIn:"值机中",Boarding:"登机中",GateClosed:"登机口已关闭",Departed:"已起飞",Delayed:"延误",Approaching:"即将抵达",Arrived:"已抵达",Canceled:"取消",Diverted:"备降",CanceledUncertain:"可能取消"}},
 "en":{gatePh:"e.g. 16",flightPh:"e.g. NZ 282",title:"Auckland Airport live flights (departure gates)",h1:"Auckland Airport Live Flights",sub:"Auckland Airport (AKL) · departure gates at a glance",lang:"Language",
 upd:"Data updated{C}",ago:"{n} min ago",just:"just now",checking:"Checking for newer data… (showing last data below)",never:"No data yet, loading…",stale:"⚠️ Could not get the latest data; showing the last saved data",every:"The server refreshes from the data source at most every {n} minutes",refresh:"Refresh",aklTime:"Auckland time",
-tabDep:"🛫 Departures",tabArr:"🛬 Arrivals",gateSearch:"Search gate",flightSearch:"Search flight number / city",clear:"Clear",gatesInUse:"Filter by gate",term:"Terminal",termAll:"All",t1:"T1 International",t2:"T2 Domestic",sort:"Sort",sortTime:"By time",sortGate:"By gate",recent:"Only upcoming flights and the last 30 minutes",
+tabDep:"🛫 Departures",tabArr:"🛬 Arrivals",gateSearch:"Search gate",flightSearch:"Search flight number / city",clear:"Clear",gatesInUse:"Filter by gate",chipsCount:" ({n})",term:"Terminal",termAll:"All",t1:"T1 International",t2:"T2 Domestic",sort:"Sort",sortTime:"By time",sortGate:"By gate",recent:"Only upcoming flights and the last 30 minutes",
 slot:"Period: {r}",loadNext:"➕ Load next period ({r})",nextDone:"Loaded: {r}",count:"{n} flights",none:"No matching flights",noneHint:"Try clearing the search, unticking “Only upcoming”, or loading the next period.",
 to:"To",from:"From",sched:"Scheduled",est:"Estimated",depT:"Took off",arrT:"Landed",desk:"Check-in",belt:"Baggage belt",gate:"Gate",tba:"TBA",cs:"Codeshare",today:"Today",tomorrow:"Tomorrow",
 err:"Flight data is not available right now. Please try again later.",errCap:"Today's update limit has been reached (to protect the free quota). Please try again later.",errSetup:"The server is not set up yet (check the Worker's RAPIDAPI_KEY).",
@@ -267,7 +288,7 @@ back:"← Back to list",gateNext:"Next departure",gateFlights:"Departures from g
 st:{Unknown:"Unknown",Expected:"On time",EnRoute:"En route",CheckIn:"Check-in",Boarding:"Boarding",GateClosed:"Gate closed",Departed:"Departed",Delayed:"Delayed",Approaching:"Approaching",Arrived:"Arrived",Canceled:"Cancelled",Diverted:"Diverted",CanceledUncertain:"Possibly cancelled"}},
 "ja":{gatePh:"例：16",flightPh:"例：NZ 282",title:"オークランド空港 リアルタイム運航情報（出発ゲート）",h1:"オークランド空港 運航情報",sub:"オークランド空港 (AKL)・出発ゲートがひと目でわかる",lang:"言語",
 upd:"データ更新時刻{C}",ago:"{n} 分前",just:"たった今",checking:"最新データを確認中…（下は前回のデータ）",never:"データなし、読み込み中…",stale:"⚠️ 最新データを取得できません。前回保存したデータを表示しています",every:"サーバーは最大 {n} 分ごとにデータ提供元から更新します",refresh:"更新",aklTime:"オークランド時間",
-tabDep:"🛫 出発",tabArr:"🛬 到着",gateSearch:"ゲートを検索",flightSearch:"便名／都市を検索",clear:"クリア",gatesInUse:"ゲートで絞り込み",term:"ターミナル",termAll:"すべて",t1:"T1 国際線",t2:"T2 国内線",sort:"並べ替え",sortTime:"時刻順",sortGate:"ゲート順",recent:"これからの便と直近30分の便のみ表示",
+tabDep:"🛫 出発",tabArr:"🛬 到着",gateSearch:"ゲートを検索",flightSearch:"便名／都市を検索",clear:"クリア",gatesInUse:"ゲートで絞り込み",chipsCount:"（{n}）",term:"ターミナル",termAll:"すべて",t1:"T1 国際線",t2:"T2 国内線",sort:"並べ替え",sortTime:"時刻順",sortGate:"ゲート順",recent:"これからの便と直近30分の便のみ表示",
 slot:"時間帯：{r}",loadNext:"➕ 次の時間帯を読み込む（{r}）",nextDone:"読み込み済み：{r}",count:"{n} 便",none:"条件に合う便はありません",noneHint:"検索をクリアするか、「これからの便のみ」を外すか、次の時間帯を読み込んでください。",
 to:"行き先",from:"出発地",sched:"定刻",est:"予定",depT:"離陸",arrT:"着陸",desk:"チェックイン",belt:"手荷物ターンテーブル",gate:"ゲート",tba:"未定",cs:"共同運航",today:"今日",tomorrow:"明日",
 err:"現在データを読み込めません。しばらくしてからお試しください。",errCap:"本日の更新回数の上限に達しました（無料枠の保護）。しばらくしてからお試しください。",errSetup:"サーバーが未設定です（Worker の RAPIDAPI_KEY を確認してください）。",
@@ -276,7 +297,7 @@ back:"← 一覧に戻る",gateNext:"次の出発便",gateFlights:"{g} 番ゲー
 st:{Unknown:"不明",Expected:"定刻",EnRoute:"飛行中",CheckIn:"搭乗手続き中",Boarding:"搭乗中",GateClosed:"ゲート締切",Departed:"出発済み",Delayed:"遅延",Approaching:"まもなく到着",Arrived:"到着済み",Canceled:"欠航",Diverted:"目的地変更",CanceledUncertain:"欠航の可能性"}},
 "mi":{gatePh:"hei tauira: 16",flightPh:"hei tauira: NZ 282",title:"Ngā Rerenga o te Taunga Rererangi o Tāmaki Makaurau",h1:"Ngā Rerenga, Taunga Rererangi o Tāmaki",sub:"Taunga Rererangi o Tāmaki Makaurau (AKL) · ngā kēti wehe",lang:"Reo",
 upd:"I whakahoutia ngā raraunga{C}",ago:"{n} meneti ki muri",just:"ināianei tonu",checking:"E tirotiro ana mō ngā raraunga hou… (kei raro ngā raraunga o mua)",never:"Kāore anō he raraunga, e uta ana…",stale:"⚠️ Kāore i taea te tiki i ngā raraunga hou; e whakaatu ana i ngā raraunga i penapenatia",every:"Ka whakahou te tūmau i ia {n} meneti te nuinga",refresh:"Whakahou",aklTime:"te wā o Tāmaki",
-tabDep:"🛫 Ngā Wehenga",tabArr:"🛬 Ngā Taenga",gateSearch:"Rapu kēti",flightSearch:"Rapu tau rerenga / tāone",clear:"Ūkui",gatesInUse:"Tātari mā te kēti",term:"Teminera",termAll:"Katoa",t1:"T1 Ā-ao",t2:"T2 Ā-motu",sort:"Raupapa",sortTime:"Mā te wā",sortGate:"Mā te kēti",recent:"Ngā rerenga e heke mai ana me ērā o te 30 meneti kua hipa anake",
+tabDep:"🛫 Ngā Wehenga",tabArr:"🛬 Ngā Taenga",gateSearch:"Rapu kēti",flightSearch:"Rapu tau rerenga / tāone",clear:"Ūkui",gatesInUse:"Tātari mā te kēti",chipsCount:" ({n})",term:"Teminera",termAll:"Katoa",t1:"T1 Ā-ao",t2:"T2 Ā-motu",sort:"Raupapa",sortTime:"Mā te wā",sortGate:"Mā te kēti",recent:"Ngā rerenga e heke mai ana me ērā o te 30 meneti kua hipa anake",
 slot:"Wāhanga: {r}",loadNext:"➕ Utaina te wāhanga e whai ake nei ({r})",nextDone:"Kua utaina: {r}",count:"{n} ngā rerenga",none:"Kāore he rerenga e hāngai ana",noneHint:"Ūkuitia te rapu, tangohia te tohu “e heke mai ana”, utaina rānei te wāhanga e whai ake nei.",
 to:"Ki",from:"Mai i",sched:"Kua whakaritea",est:"Matapae",depT:"I wehe",arrT:"I tau",desk:"Takiuru",belt:"Whitiki tueke",gate:"Kēti",tba:"Kāore anō kia mōhiotia",cs:"Tiri waehere",today:"Tēnei rā",tomorrow:"Āpōpō",
 err:"Kāore e wātea ana ngā raraunga i tēnei wā. Whakamātauria anō ā muri ake.",errCap:"Kua tae ki te rohe whakahou o te rā nei. Whakamātauria anō ā muri ake.",errSetup:"Kāore anō te tūmau kia whakaritea (tirohia te RAPIDAPI_KEY o te Worker).",
@@ -285,7 +306,7 @@ back:"← Hoki ki te rārangi",gateNext:"Te wehenga e whai ake nei",gateFlights:
 st:{Unknown:"Kāore e mōhiotia",Expected:"I te wā tika",EnRoute:"Kei te rere",CheckIn:"Takiuru",Boarding:"E eke ana",GateClosed:"Kua kati te kēti",Departed:"Kua wehe",Delayed:"Kua tōmuri",Approaching:"E tata mai ana",Arrived:"Kua tae mai",Canceled:"Kua whakakorea",Diverted:"Kua huri kē",CanceledUncertain:"Tērā pea kua whakakorea"}},
 "ko":{gatePh:"예: 16",flightPh:"예: NZ 282",title:"오클랜드 공항 실시간 항공편 (출발 게이트)",h1:"오클랜드 공항 실시간 항공편",sub:"오클랜드 공항 (AKL) · 출발 게이트 한눈에 보기",lang:"언어",
 upd:"데이터 업데이트{C}",ago:"{n}분 전",just:"방금",checking:"최신 데이터 확인 중… (아래는 이전 데이터)",never:"데이터 없음, 불러오는 중…",stale:"⚠️ 최신 데이터를 가져오지 못해 마지막으로 저장된 데이터를 표시합니다",every:"서버는 최대 {n}분마다 데이터 제공처에서 업데이트합니다",refresh:"새로고침",aklTime:"오클랜드 시간",
-tabDep:"🛫 출발",tabArr:"🛬 도착",gateSearch:"게이트 검색",flightSearch:"편명／도시 검색",clear:"지우기",gatesInUse:"게이트별 필터",term:"터미널",termAll:"전체",t1:"T1 국제선",t2:"T2 국내선",sort:"정렬",sortTime:"시간순",sortGate:"게이트순",recent:"예정 항공편과 최근 30분 항공편만 표시",
+tabDep:"🛫 출발",tabArr:"🛬 도착",gateSearch:"게이트 검색",flightSearch:"편명／도시 검색",clear:"지우기",gatesInUse:"게이트별 필터",chipsCount:"({n})",term:"터미널",termAll:"전체",t1:"T1 국제선",t2:"T2 국내선",sort:"정렬",sortTime:"시간순",sortGate:"게이트순",recent:"예정 항공편과 최근 30분 항공편만 표시",
 slot:"시간대: {r}",loadNext:"➕ 다음 시간대 불러오기 ({r})",nextDone:"불러옴: {r}",count:"항공편 {n}편",none:"조건에 맞는 항공편이 없습니다",noneHint:"검색을 지우거나 「예정 항공편만」을 해제하거나 다음 시간대를 불러오세요.",
 to:"목적지",from:"출발지",sched:"예정",est:"변경 예정",depT:"이륙",arrT:"착륙",desk:"체크인",belt:"수하물 벨트",gate:"게이트",tba:"미정",cs:"공동운항",today:"오늘",tomorrow:"내일",
 err:"지금은 데이터를 불러올 수 없습니다. 잠시 후 다시 시도하세요.",errCap:"오늘 업데이트 한도에 도달했습니다(무료 한도 보호). 잠시 후 다시 시도하세요.",errSetup:"서버가 아직 설정되지 않았습니다(Worker의 RAPIDAPI_KEY 확인).",
@@ -295,8 +316,9 @@ st:{Unknown:"알 수 없음",Expected:"정시",EnRoute:"비행 중",CheckIn:"체
 };
 const $=(id)=>document.getElementById(id);
 const esc=(s)=>String(s??"").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let LANG=localStorage.getItem("aklLang"); if(!I18N[LANG]) LANG="zh-Hant";
-const T=(k,v={})=>{v={C:/^(zh|ja)/.test(LANG)?"：":": ",...v};return String(I18N[LANG][k]??I18N["zh-Hant"][k]??k).replace(/\{(\w+)\}/g,(_,x)=>v[x]??"");};
+// default language = English on a first visit (browser language is NOT used); a saved choice ("aklLang") wins
+const DEFAULT_LANG="en";let LANG=null;try{LANG=localStorage.getItem("aklLang");}catch(e){} if(!Object.prototype.hasOwnProperty.call(I18N,LANG||"")) LANG=DEFAULT_LANG;
+const T=(k,v={})=>{v={C:/^(zh|ja)/.test(LANG)?"：":": ",...v};return String(I18N[LANG][k]??I18N[DEFAULT_LANG][k]??k).replace(/\{(\w+)\}/g,(_,x)=>v[x]??"");};
 const LCODE={"zh-Hant":"繁","zh-Hans":"简",en:"EN",ja:"日",mi:"MI",ko:"한"};
 // the text-size buttons were removed (fixed default size); forget a size saved by an older version
 try{localStorage.removeItem("aklFont");}catch(e){}
@@ -394,10 +416,55 @@ function pillarHTML(g){
   return `<button type="button" class="backbtn" id="backBtn">${esc(T("back"))}</button>
 <div class="pl-scene">${KORU1}${KORU2}
 <div class="pl-sign" role="img" aria-label="${esc(T("gate")+" "+g)}"><span class="l">${esc(T("gate"))}</span><span class="n" id="plGate">${esc(g)}</span><span class="bar"></span></div>
-<div class="pl-body"><p class="pl-label">${esc(T("gateNext"))}</p>${next}</div><div class="pl-base"></div><div class="pl-floor"></div></div>
+<div class="pl-body"><p class="pl-label">${esc(T("gateNext"))}</p>${next}</div><div class="pl-base"></div>${pfFloor(g,nx)}</div>
 <div class="pl-list"><h2 id="plTitle">${esc(T("gateFlights",{g}))}</h2><div id="plCount" class="sc-meta">${esc(T("count",{n:list.length}))}</div>
 <div id="plList">${list.length?list.map((f)=>signCard(f,false)).join(""):`<div class="empty">${EMPTY_ART}<p>${esc(T("gateNone"))}</p></div>`}</div></div>`;
 }
+// ---- gate floor scene (round 7): decorative little people under the gate pillar ----
+// Follows the status of the flight shown as "Next departure" (data already loaded; no extra requests).
+// Boarding -> queue at the gate; GateClosed -> barrier belt across the gate; no flight / departed / cancelled -> empty bench
+// with a sleeper (Zzz); every other status (Expected, CheckIn, Delayed, Unknown, ...) -> people walking and sitting.
+const PF_STATE={Boarding:"board",GateClosed:"closed",Departed:"idle",Arrived:"idle",Canceled:"idle"};
+const pfState=(nx)=>nx?(PF_STATE[nx.st]||"wait"):"idle";
+const PF_SKIN=["#f2d3bd","#e3b48f","#c68a5e","#a1663e","#7a4a2b","#56341f"],PF_HAIR=["#2b1d14","#4a3020","#7a5230","#b88a4e","#151515","#8c3b22"];
+const PF_CLOTH=["#3b6745","#4a6680","#b5523b","#d39b2e","#6d4c8f","#2f7f8a","#c2607a","#55606b","#8a6d3b","#1f4e79","#d9713a","#6f8a2e","#9b2f4a","#2d2d3a"];
+const pfPick=(r,a)=>a[Math.floor(r()*a.length)];
+function pfRng(seed){return ()=>{seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function pfLook(r,old){const f=r()<.5;return {f,old,sk:pfPick(r,PF_SKIN),hair:old?pfPick(r,["#d9d9d9","#bdbdbd","#e8e4dc"]):pfPick(r,PF_HAIR),top:pfPick(r,PF_CLOTH),bot:pfPick(r,PF_CLOTH),leg:pfPick(r,["#2d2d3a","#55606b",pfPick(r,PF_SKIN)])};}
+const pfSvg=(x0,w,body,cls="pp")=>`<svg class="${cls}" width="${w}" height="62" viewBox="${x0} -60 ${w} 62" focusable="false">${body}</svg>`;
+// one standing / walking person, feet at (0,0), facing right; hand = where the front hand goes (null = swinging arm)
+function pfFig(L,hand,back){const {f,old,sk,hair,top,bot,leg}=L;const k=(c,w)=>`stroke="${c}" stroke-width="${w}" stroke-linecap="round" fill="none"`;
+  const legs=f?`<path class="lg" d="M-1.5-20v19" ${k(leg,3)}/><path class="lg" d="M1.5-20v19" ${k(leg,3)}/>`:`<path class="lg" d="M0-22v21" ${k(bot,4.5)}/><path class="lg" d="M0-22v21" ${k(bot,4.5)}/>`;
+  const head=`${f?`<ellipse cx="-2.6" cy="-43" rx="5" ry="${old?4.5:8}" fill="${hair}"/>`:""}<circle cy="-46" r="5.5" fill="${sk}"/><path d="M-5.7-46.3a5.7 5.7 0 0 1 11.4 0c-3-2-7-2-9.4 1.2l-.6 3.6c-1.4-1.3-1.6-3-1.4-4.8z" fill="${hair}"/>`;
+  const torso=f?`<path d="M-4.5-40h9l4 24h-17z" fill="${top}"/>`:`<rect x="-5.5" y="-40" width="11" height="19.5" rx="4" fill="${top}"/>`;
+  const arm=hand?`<path d="M0-37L${hand[0]} ${hand[1]}" ${k(top,3.4)}/><circle cx="${hand[0]}" cy="${hand[1]}" r="1.9" fill="${sk}"/>`:`<g class="am"><path d="M0-37v12" ${k(top,3.4)}/><circle cy="-23.8" r="1.9" fill="${sk}"/></g>`;
+  const up=(back||"")+torso+head;
+  return `<ellipse rx="9" ry="1.6" fill="#1d2a36" opacity=".14"/>${legs}`+(old?`<g transform="rotate(14 0 -22)">${up}</g><path d="M10-25l2.5 25" ${k("#6b4f2e",2)}/><path d="M3.6-36.6L10-25" ${k(top,3.4)}/><circle cx="10" cy="-25" r="1.9" fill="${sk}"/>`:up+arm);}
+// kinds: man, woman, elder (stick, bent), pram (family), child (family, holding hands), case (suitcase), pack (backpack)
+function pfPerson(r,kind){const L=pfLook(r,kind==="elder");if(kind==="man")L.f=false;if(kind==="woman")L.f=true;
+  if(kind==="pram"){const c=pfPick(r,PF_CLOTH);return {w:48,s:pfSvg(-12,48,pfFig(L,[11,-27])+`<path d="M11-27l4 10" stroke="#3a4450" stroke-width="1.6" fill="none"/><path d="M14-18h17a8.5 8.5 0 0 1-8.5 9h-8.5z" fill="${c}"/><path d="M15-18a9 9 0 0 1 9-9v9z" fill="${c}" opacity=".75"/><circle cx="17" cy="-2.6" r="2.6" fill="#3a4450"/><circle cx="28" cy="-2.6" r="2.6" fill="#3a4450"/><path d="M17-6.5l1.5-2.5M28-6.5l-1.5-2.5" stroke="#3a4450" stroke-width="1.4"/>`)};}
+  if(kind==="child"){const C=pfLook(r,false);return {w:40,s:pfSvg(-12,40,pfFig(L,[8,-22])+`<g transform="translate(15 0) scale(.62)">${pfFig(C,[-11.3,-35.5])}</g>`)};}
+  if(kind==="case"){const c=pfPick(r,PF_CLOTH);return {w:42,s:pfSvg(-30,42,`<path d="M-1-35L-11-24" stroke="${L.top}" stroke-width="3.4" stroke-linecap="round"/><circle cx="-11" cy="-24" r="1.9" fill="${L.sk}"/><path d="M-11-24l-6 10" stroke="#3a4450" stroke-width="1.6"/><g transform="rotate(-14 -20 0)"><rect x="-27" y="-16" width="12" height="15" rx="2" fill="${c}"/><path d="M-23-16v15M-19-16v15" stroke="#1d2a36" stroke-opacity=".25"/></g><circle cx="-25" cy="-1.6" r="1.6" fill="#3a4450"/>`+pfFig(L,null))};}
+  if(kind==="pack"){const c=pfPick(r,PF_CLOTH);return {w:30,s:pfSvg(-14,30,pfFig(L,null,`<rect x="-11" y="-40" width="7" height="15" rx="2.5" fill="${c}"/>`))};}
+  return {w:30,s:pfSvg(-13,30,pfFig(L,null))};}
+const pfSit=(L,x)=>{const k=(c,w)=>`stroke="${c}" stroke-width="${w}" stroke-linecap="round" fill="none"`;return `<g transform="translate(${x} 0)"><path d="M0-17h10v15" ${k(L.f?L.leg:L.bot,4.2)}/>${L.f?`<path d="M-5-34h9l2 17h-12z" fill="${L.top}"/><ellipse cx="-2.6" cy="-37" rx="5" ry="7" fill="${L.hair}"/>`:`<rect x="-5.5" y="-34" width="11" height="18" rx="4" fill="${L.top}"/>`}<circle cy="-40" r="5.3" fill="${L.sk}"/><path d="M-5.5-40.3a5.5 5.5 0 0 1 11 0c-3-2-7-2-9 1.2l-.6 3.4c-1.4-1.3-1.6-3-1.4-4.6z" fill="${L.hair}"/><path d="M0-31l6 9h4" ${k(L.top,3.2)}/><circle cx="10" cy="-22" r="1.8" fill="${L.sk}"/></g>`;};
+const PF_BENCH=`<rect x="2" y="-24" width="124" height="5" rx="2" fill="#8a9aa8"/><rect x="2" y="-17" width="124" height="4" rx="1.5" fill="#6b7c8b"/><path d="M12-13V0M116-13V0" stroke="#55606b" stroke-width="3"/>`;
+function pfDoor(state){const open=state==="board";return pfSvg(0,64,`<rect x="12" y="-58" width="40" height="58" rx="2" fill="#2a3a48"/><rect x="15" y="-55" width="34" height="55" fill="${open?"#c9d8e3":"#5a6b7a"}"/>${open?`<path d="M15-55l8 6v49h-8z" fill="#9fb2c1"/>`:`<path d="M32-55V0" stroke="#3e4d5a" stroke-width="1.2"/>`}<circle cx="32" cy="-62" r="2.4" fill="${state==="board"?"#3f8a52":state==="closed"?"#c0504d":"#9aa5af"}"/>`+(state==="closed"?`<path d="M6-1v-24M58-1v-24" stroke="#55606b" stroke-width="3"/><ellipse cx="6" cy="-.8" rx="5" ry="1.5" fill="#55606b"/><ellipse cx="58" cy="-.8" rx="5" ry="1.5" fill="#55606b"/><path d="M6-22H58" stroke="#c0504d" stroke-width="3.5"/><path d="M6-22H58" stroke="#f4d58d" stroke-width="3.5" stroke-dasharray="4 6"/>`:""),"pf-door");}
+function pfScene(state,seed){const r=pfRng(seed),kinds=["man","woman","elder","pram","child","case","pack"];
+  for(let i=kinds.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[kinds[i],kinds[j]]=[kinds[j],kinds[i]];}
+  let h=pfDoor(state);
+  if(state==="wait"){h+=pfSvg(0,128,PF_BENCH+pfSit(pfLook(r,false),26)+pfSit(pfLook(r,r()<.4),86),"pf-bench");
+    kinds.slice(0,4).forEach((k,i)=>{const p=pfPerson(r,k),d=Math.round((k==="elder"?30:15+r()*7)*10)/10,rtl=r()<.4;
+      h+=`<div class="pf-w${rtl?" rtl":""}" style="--d:${d}s;--dl:${-Math.round((i/4+r()*.15)*d*10)/10}s;--x:${34+i*15}%;--b:${(i%2)*.25}rem;--st:${k==="elder"?.8:.45+r()*.1}s">${p.s}</div>`;});}
+  else if(state==="board"){h+=`<div class="pf-q">${kinds.slice(0,5+(r()<.5?1:0)).map((k)=>pfPerson(r,k).s).join("")}</div>`;}
+  else if(state==="closed"){h+=pfPerson(r,"case").s.replace('class="pp"','class="pp pf-stop"');}
+  else{const L=pfLook(r,false),k=(c,w)=>`stroke="${c}" stroke-width="${w}" stroke-linecap="round" fill="none"`;
+    h+=pfSvg(0,128,PF_BENCH+`<path d="M44-28h34l8 4" ${k(L.bot,5)}/><rect x="22" y="-33" width="24" height="10" rx="4.5" fill="${L.top}"/><circle cx="16" cy="-30" r="5.4" fill="${L.sk}"/><path d="M11-31a5.4 5.4 0 0 1 9-4c-2 0-5 1-6 4z" fill="${L.hair}"/><path d="M24-31q8 6 14 0" ${k(L.top,3)}/><g class="zz" ${k("#4b5966",1.6)}><path d="M18-44h5l-5 5h5"/><path d="M26-52h6l-6 6h6"/><path d="M35-61h7l-7 7h7"/></g>`,"pf-bench");}
+  return h;}
+let PF_SEED=null;
+function pfFloor(g,nx){const st=pfState(nx);if(PF_SEED===null)PF_SEED=Math.floor(Math.random()*4294967296);
+  const key=`${g}|${nx?nx.no+"|"+nx.sch:"-"}|${st}`;let s=PF_SEED;for(const c of key)s=Math.imul(s^c.charCodeAt(0),16777619);
+  return `<div class="pl-floor" id="plFloor" data-state="${st}" data-k="${esc(key)}" style="--t:${(performance.now()/1000).toFixed(2)}s" aria-hidden="true">${pfScene(st,s)}</div>`;}
 const hashGate=()=>{const m=/^#gate-(.+)$/.exec(location.hash);try{return m?norm(decodeURIComponent(m[1])):null;}catch(e){return null;}};
 function openPillar(g){S.scrollY=window.scrollY;S.pillar=g;history.pushState({aklGate:g},"","#gate-"+encodeURIComponent(g));S.pushed=true;render();window.scrollTo(0,0);const b=$("backBtn");if(b)b.focus({preventScroll:true});}
 function closePillar(){if(S.pushed&&history.state&&history.state.aklGate){history.back();return;}S.pillar=null;history.replaceState(null,"",location.pathname+location.search);render();}
@@ -432,7 +499,7 @@ function render(){
   const nx=d.next&&S.nextWanted?d.next:null;$("loadNext").textContent=nx?T("nextDone",{r:slotRange(nx.slot)}):T("loadNext",{r:slotRange(predictSlot("next"))});$("loadNext").disabled=!!nx;
   // gate chips (departures with a gate, upcoming)
   const all=flights(),now=Date.now();const gates=[...new Set(all.filter((f)=>f.gate&&(!$("fRecent").checked||(bestTime(f)?.ms||0)>=now-30*60e3)).map((f)=>f.gate))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
-  $("chipsBox").hidden=!gates.length;$("chipsN").textContent=gates.length;$("chips").innerHTML=gates.map((g)=>`<button type="button" aria-pressed="${norm(g)===parseGate(S.gate)}" data-g="${esc(g)}">${esc(g)}</button>`).join("");
+  $("chipsBox").hidden=!gates.length;$("chipsC").textContent=T("chipsCount",{n:gates.length});$("chips").innerHTML=gates.map((g)=>`<button type="button" aria-pressed="${norm(g)===parseGate(S.gate)}" data-g="${esc(g)}">${esc(g)}</button>`).join("");
   const pg=parseGate(S.gate);$("gHint").hidden=!pg||pg===S.gate.trim().toUpperCase();$("gHint").textContent=pg?T("parsed",{g:pg}):"";
   const pv=!!S.pillar;$("listView").hidden=pv;$("tabs").hidden=pv;$("pillarView").hidden=!pv;if(pv)$("pillarView").innerHTML=pillarHTML(S.pillar);
   $("tapHint").hidden=S.dir!=="dep";
@@ -452,7 +519,7 @@ function applyLang(){
 
 // ---- events ----
 $("lang").innerHTML=LANGS.map(([k,v])=>`<option value="${k}" lang="${k}">${v}</option>`).join("");
-$("lang").onchange=()=>{LANG=$("lang").value;localStorage.setItem("aklLang",LANG);applyLang();};
+$("lang").onchange=()=>{LANG=$("lang").value;try{localStorage.setItem("aklLang",LANG);}catch(e){}applyLang();};
 // switching tabs needs no new request: the same response has both directions
 $("tabDep").onclick=()=>{S.dir="dep";render();load("now");};$("tabArr").onclick=()=>{S.dir="arr";render();load("now");};
 $("qGate").oninput=(e)=>{S.gate=e.target.value;render();};$("qFlight").oninput=(e)=>{S.q=e.target.value;render();};
