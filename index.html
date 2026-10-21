@@ -177,7 +177,27 @@ details summary{min-height:var(--tap);display:flex;align-items:center;font-weigh
 @keyframes pfBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
 @keyframes pfBoard{0%,50%{transform:none;opacity:1}75%{transform:translateX(34px);opacity:0}76%{transform:none;opacity:0}100%{transform:none;opacity:1}}
 @keyframes pfZ{0%{opacity:0;transform:translate(0,0)}25%{opacity:.9}100%{opacity:0;transform:translate(6px,-12px)}}
+/* round 8: check-in counters + queue with luggage (status CheckIn) */
+.pf-desk{right:calc(3% + 116px)}.pf-desk2{right:3%}
+.pf-ciq{position:absolute;right:calc(3% + 190px);bottom:.2rem;display:flex;align-items:flex-end;height:62px}
+@media (max-width:26rem){.pf-desk{right:3%}.pf-desk2,.pf-ci2{display:none}.pf-ciq{right:calc(3% + 74px)}}
+.pf-ciq svg{position:static;margin-left:1px;animation:pfBob 2.8s ease-in-out calc(0s - var(--t,0s)) infinite}
+.pf-ciq svg:nth-child(2n){animation-delay:calc(-1.2s - var(--t,0s))}.pf-ciq svg:nth-child(3n){animation-delay:calc(-2s - var(--t,0s))}
+.pf-ciq svg:last-child{animation:pfStep 6s ease-in-out calc(0s - var(--t,0s)) infinite}
+.pf-ci2{position:absolute;right:calc(3% + 72px);bottom:.2rem;height:62px}
+.pf-ci2 svg{position:static;animation:pfBob 3.2s ease-in-out calc(-.7s - var(--t,0s)) infinite}
+.pf-desk .bag,.pf-desk2 .bag{animation:pfBag 6s ease-in-out calc(0s - var(--t,0s)) infinite}
+.pf-desk2 .bag{animation-delay:calc(-3s - var(--t,0s))}
+.pf-desk .agent,.pf-desk2 .agent{animation:pfBob 3.4s ease-in-out calc(-1.4s - var(--t,0s)) infinite}
+@keyframes pfStep{0%,20%{transform:none}35%,75%{transform:translateX(5px)}90%,100%{transform:none}}
+@keyframes pfBag{0%,10%{transform:translateY(-7px);opacity:0}20%,55%{transform:none;opacity:1}80%{transform:translateX(20px);opacity:0}100%{transform:translateY(-7px);opacity:0}}
 @media (prefers-reduced-motion:reduce){.pl-floor *{animation:none!important}}
+/* round 8: aircraft type + registration line */
+.acft{font-size:.8rem;color:var(--muted);margin-top:.15rem;line-height:1.3}
+.ac-v{color:var(--ink);font-weight:700}
+.ac-live{display:inline-block;font-size:.72rem;font-weight:700;background:var(--okBg);color:var(--okInk);border-radius:.25rem;padding:0 .3rem;white-space:nowrap;line-height:1.25}
+.pl-next .acft{color:var(--signSub);margin-top:.3rem}.pl-next .ac-v{color:var(--signInk)}
+@media (max-width:23.5rem){.sc .sc-foot{margin-top:.25rem}.sc .sc-meta{line-height:1.25;margin-top:.1rem}.sc .acft{line-height:1.2;margin-top:0}}
 .pl-list h2{font-size:1.15rem;margin:1rem 0 .3rem}
 #plCount{background:var(--bg);display:inline-block;padding:0 .15rem}
 .pl-list h2{background:var(--bg);display:inline-block;padding:0 .15rem}
@@ -187,6 +207,8 @@ details summary{min-height:var(--tap);display:flex;align-items:center;font-weigh
 footer{position:relative;padding:1rem .875rem 2rem;max-width:56rem;margin:auto;font-size:.95rem}
 #attrib{display:block;background:var(--panel);border:2px solid var(--btn);border-radius:.6rem;padding:.75rem;font-size:1.1rem;font-weight:bold;text-align:center}
 #attrib a{color:var(--link);display:inline-flex;align-items:center;min-height:var(--tap);padding:0 .5rem;text-decoration:underline}
+#attrib2{display:block;background:var(--panel);border:1px solid var(--btn);border-radius:.6rem;padding:.4rem .75rem;margin-top:.5rem;font-size:.95rem;font-weight:bold;text-align:center}
+#attrib2 a{color:var(--link);display:inline-flex;align-items:center;min-height:var(--tap);padding:0 .5rem;text-decoration:underline}
 footer p{color:var(--muted);background:var(--bg);display:inline-block;padding:0 .2rem}
 footer .korus{display:block;width:9rem;height:auto;margin:.6rem auto 0;opacity:.8}
 [hidden]{display:none!important}
@@ -247,6 +269,8 @@ footer .korus{display:block;width:9rem;height:auto;margin:.6rem auto 0;opacity:.
 <section id="pillarView" hidden aria-live="polite"></section>
 <footer>
   <div id="attrib"><span data-tr="src">Flight data source: </span><a href="https://aerodatabox.com" id="adbLink">AeroDataBox</a></div>
+  <div id="attrib2"><span data-tr="src2">Live aircraft data (ADS-B): </span><a href="https://adsb.fi" id="adsbLink">adsb.fi</a></div>
+  <p data-tr="acNote">Aircraft and registration: values marked “live ADS-B” come from an aircraft that ADS-B receivers can hear right now using the same callsign as the flight; other registrations come from AeroDataBox flight data (filled only from live and ADS-B data, not from timetables). Without reliable data we show “Not available” – we never guess.</p>
   <p data-tr="times">All times are Auckland local time.</p>
   <p data-tr="unofficial">Unofficial site. Not affiliated with any airline or airport.</p>
   <p data-tr="disclaimer">Data may be delayed or incomplete. Always check with your airline and the airport screens.</p>
@@ -259,7 +283,7 @@ const TZ = "Pacific/Auckland", CACHE_MIN = 15;
 const LANGS=[["zh-Hant","繁體中文"],["zh-Hans","简体中文"],["en","English"],["ja","日本語"],["mi","Te Reo Māori"],["ko","한국어"]];
 const ST_KEYS=["Unknown","Expected","EnRoute","CheckIn","Boarding","GateClosed","Departed","Delayed","Approaching","Arrived","Canceled","Diverted","CanceledUncertain"];
 const I18N={
-"zh-Hant":{gatePh:"例：16",flightPh:"例：NZ 282",title:"奧克蘭機場實時航班（離港閘口）",h1:"奧克蘭機場實時航班",sub:"奧克蘭國際機場 (AKL)・離港閘口一目了然",lang:"語言",
+"zh-Hant":{acType:"機型",acReg:"機身編號",acNA:"未有資料",acLive:"實時 ADS-B",src2:"實時飛機資料（ADS-B）來源{C}",acPlan:"預定",acNote:"機型同機身編號：標住「實時 ADS-B」嘅，係呢一刻 ADS-B 接收器收到、用緊同一個呼號嘅飛機；冇標嘅機身編號來自 AeroDataBox 航班資料（佢哋只會由實時同 ADS-B 資料填，唔係時間表）。冇可靠資料就顯示「未有資料」，我哋唔會估。",gatePh:"例：16",flightPh:"例：NZ 282",title:"奧克蘭機場實時航班（離港閘口）",h1:"奧克蘭機場實時航班",sub:"奧克蘭國際機場 (AKL)・離港閘口一目了然",lang:"語言",
 upd:"資料更新時間{C}",ago:"{n} 分鐘前",just:"啱啱更新",checking:"正在檢查最新資料…（下面係上次嘅資料）",never:"未有資料，載入中…",stale:"⚠️ 未能取得最新資料，顯示上次儲存嘅資料",every:"伺服器每 {n} 分鐘最多向資料來源更新一次",refresh:"重新整理",aklTime:"奧克蘭時間",
 tabDep:"🛫 離港",tabArr:"🛬 到港",gateSearch:"搜尋閘口",flightSearch:"搜尋航班編號／城市",clear:"清除",gatesInUse:"按閘口篩選",chipsCount:"（{n}）",term:"客運大樓",termAll:"全部",t1:"T1 國際",t2:"T2 國內",sort:"排序",sortTime:"按時間",sortGate:"按閘口",recent:"只顯示未來同最近 30 分鐘嘅航班",
 slot:"時段：{r}",loadNext:"➕ 載入下一個時段（{r}）",nextDone:"已載入：{r}",count:"共 {n} 班航班",none:"冇符合條件嘅航班",noneHint:"試吓清除搜尋、取消「只顯示未來」，或者載入下一個時段。",
@@ -268,7 +292,7 @@ err:"暫時未能載入資料，請稍後再試。",errCap:"今日嘅更新次�
 src:"航班資料來源{C}",times:"所有時間均為奧克蘭當地時間。",disclaimer:"資料可能有延誤或者唔完整，請以航空公司同機場顯示屏為準。",
 back:"← 返回列表",gateNext:"下一班離港",gateFlights:"閘口 {g} 嘅離港航班",gateNone:"呢個閘口喺已載入嘅時段暫時冇航班",tapHint:"撳閘口卡可以睇閘口柱",parsed:"搜尋閘口 {g}",openPillar:"打開閘口 {g} 嘅閘口柱",unofficial:"非官方網站，與任何航空公司或機場無關。",
 st:{Unknown:"未知",Expected:"按時",EnRoute:"飛行中",CheckIn:"辦理登機",Boarding:"登機中",GateClosed:"閘口已關",Departed:"已起飛",Delayed:"延誤",Approaching:"即將抵達",Arrived:"已抵達",Canceled:"取消",Diverted:"改降",CanceledUncertain:"可能取消"}},
-"zh-Hans":{gatePh:"例：16",flightPh:"例：NZ 282",title:"奥克兰机场实时航班（离港登机口）",h1:"奥克兰机场实时航班",sub:"奥克兰国际机场 (AKL)・离港登机口一目了然",lang:"语言",
+"zh-Hans":{acType:"机型",acReg:"机身编号",acNA:"暂无资料",acLive:"实时 ADS-B",src2:"实时飞机数据（ADS-B）来源{C}",acPlan:"计划",acNote:"机型和机身编号：标有「实时 ADS-B」的，是此刻 ADS-B 接收器收到、正在使用同一呼号的飞机；未标注的机身编号来自 AeroDataBox 航班数据（只来自实时及 ADS-B 数据，不是时刻表）。没有可靠数据时显示「暂无资料」，我们不会猜测。",gatePh:"例：16",flightPh:"例：NZ 282",title:"奥克兰机场实时航班（离港登机口）",h1:"奥克兰机场实时航班",sub:"奥克兰国际机场 (AKL)・离港登机口一目了然",lang:"语言",
 upd:"数据更新时间{C}",ago:"{n} 分钟前",just:"刚刚更新",checking:"正在检查最新数据…（下面是上次的数据）",never:"暂无数据，加载中…",stale:"⚠️ 未能获取最新数据，显示上次保存的数据",every:"服务器每 {n} 分钟最多向数据源更新一次",refresh:"刷新",aklTime:"奥克兰时间",
 tabDep:"🛫 离港",tabArr:"🛬 到港",gateSearch:"搜索登机口",flightSearch:"搜索航班号／城市",clear:"清除",gatesInUse:"按登机口筛选",chipsCount:"（{n}）",term:"航站楼",termAll:"全部",t1:"T1 国际",t2:"T2 国内",sort:"排序",sortTime:"按时间",sortGate:"按登机口",recent:"只显示未来及最近 30 分钟的航班",
 slot:"时段：{r}",loadNext:"➕ 加载下一个时段（{r}）",nextDone:"已加载：{r}",count:"共 {n} 个航班",none:"没有符合条件的航班",noneHint:"请尝试清除搜索、取消「只显示未来」，或加载下一个时段。",
@@ -277,7 +301,7 @@ err:"暂时无法加载数据，请稍后再试。",errCap:"今天的更新次�
 src:"航班数据来源{C}",times:"所有时间均为奥克兰当地时间。",disclaimer:"数据可能有延误或不完整，请以航空公司及机场显示屏为准。",
 back:"← 返回列表",gateNext:"下一班离港",gateFlights:"登机口 {g} 的离港航班",gateNone:"此登机口在已加载时段暂无航班",tapHint:"点按登机口卡片可查看登机口柱",parsed:"搜索登机口 {g}",openPillar:"打开登机口 {g} 的登机口柱",unofficial:"非官方网站，与任何航空公司或机场无关。",
 st:{Unknown:"未知",Expected:"按时",EnRoute:"飞行中",CheckIn:"值机中",Boarding:"登机中",GateClosed:"登机口已关闭",Departed:"已起飞",Delayed:"延误",Approaching:"即将抵达",Arrived:"已抵达",Canceled:"取消",Diverted:"备降",CanceledUncertain:"可能取消"}},
-"en":{gatePh:"e.g. 16",flightPh:"e.g. NZ 282",title:"Auckland Airport live flights (departure gates)",h1:"Auckland Airport Live Flights",sub:"Auckland Airport (AKL) · departure gates at a glance",lang:"Language",
+"en":{acType:"Aircraft",acReg:"Reg.",acNA:"Not available",acLive:"live ADS-B",src2:"Live aircraft data (ADS-B){C}",acPlan:"scheduled",acNote:"Aircraft and registration: values marked “live ADS-B” come from an aircraft that ADS-B receivers can hear right now using the same callsign as the flight; other registrations come from AeroDataBox flight data (filled only from live and ADS-B data, not from timetables). Without reliable data we show “Not available” – we never guess.",gatePh:"e.g. 16",flightPh:"e.g. NZ 282",title:"Auckland Airport live flights (departure gates)",h1:"Auckland Airport Live Flights",sub:"Auckland Airport (AKL) · departure gates at a glance",lang:"Language",
 upd:"Data updated{C}",ago:"{n} min ago",just:"just now",checking:"Checking for newer data… (showing last data below)",never:"No data yet, loading…",stale:"⚠️ Could not get the latest data; showing the last saved data",every:"The server refreshes from the data source at most every {n} minutes",refresh:"Refresh",aklTime:"Auckland time",
 tabDep:"🛫 Departures",tabArr:"🛬 Arrivals",gateSearch:"Search gate",flightSearch:"Search flight number / city",clear:"Clear",gatesInUse:"Filter by gate",chipsCount:" ({n})",term:"Terminal",termAll:"All",t1:"T1 International",t2:"T2 Domestic",sort:"Sort",sortTime:"By time",sortGate:"By gate",recent:"Only upcoming flights and the last 30 minutes",
 slot:"Period: {r}",loadNext:"➕ Load next period ({r})",nextDone:"Loaded: {r}",count:"{n} flights",none:"No matching flights",noneHint:"Try clearing the search, unticking “Only upcoming”, or loading the next period.",
@@ -286,7 +310,7 @@ err:"Flight data is not available right now. Please try again later.",errCap:"To
 src:"Flight data source{C}",times:"All times are Auckland local time.",disclaimer:"Data may be delayed or incomplete. Always check with your airline and the airport screens.",
 back:"← Back to list",gateNext:"Next departure",gateFlights:"Departures from gate {g}",gateNone:"No flights at this gate in the loaded periods",tapHint:"Tap a gate card to see the gate pillar",parsed:"Searching gate {g}",openPillar:"Open gate {g} pillar",unofficial:"Unofficial site. Not affiliated with any airline or airport.",
 st:{Unknown:"Unknown",Expected:"On time",EnRoute:"En route",CheckIn:"Check-in",Boarding:"Boarding",GateClosed:"Gate closed",Departed:"Departed",Delayed:"Delayed",Approaching:"Approaching",Arrived:"Arrived",Canceled:"Cancelled",Diverted:"Diverted",CanceledUncertain:"Possibly cancelled"}},
-"ja":{gatePh:"例：16",flightPh:"例：NZ 282",title:"オークランド空港 リアルタイム運航情報（出発ゲート）",h1:"オークランド空港 運航情報",sub:"オークランド空港 (AKL)・出発ゲートがひと目でわかる",lang:"言語",
+"ja":{acType:"機材",acReg:"機体記号",acNA:"情報なし",acLive:"ADS-B 受信中",src2:"リアルタイム機体データ（ADS-B）提供{C}",acPlan:"予定",acNote:"機材と機体記号：「ADS-B 受信中」の表示があるものは、いま ADS-B 受信機が同じコールサインで受信している機体の情報です。表示のない機体記号は AeroDataBox の運航データ（時刻表ではなく、リアルタイム・ADS-B データのみ）です。確かなデータがない場合は「情報なし」と表示し、推測はしません。",gatePh:"例：16",flightPh:"例：NZ 282",title:"オークランド空港 リアルタイム運航情報（出発ゲート）",h1:"オークランド空港 運航情報",sub:"オークランド空港 (AKL)・出発ゲートがひと目でわかる",lang:"言語",
 upd:"データ更新時刻{C}",ago:"{n} 分前",just:"たった今",checking:"最新データを確認中…（下は前回のデータ）",never:"データなし、読み込み中…",stale:"⚠️ 最新データを取得できません。前回保存したデータを表示しています",every:"サーバーは最大 {n} 分ごとにデータ提供元から更新します",refresh:"更新",aklTime:"オークランド時間",
 tabDep:"🛫 出発",tabArr:"🛬 到着",gateSearch:"ゲートを検索",flightSearch:"便名／都市を検索",clear:"クリア",gatesInUse:"ゲートで絞り込み",chipsCount:"（{n}）",term:"ターミナル",termAll:"すべて",t1:"T1 国際線",t2:"T2 国内線",sort:"並べ替え",sortTime:"時刻順",sortGate:"ゲート順",recent:"これからの便と直近30分の便のみ表示",
 slot:"時間帯：{r}",loadNext:"➕ 次の時間帯を読み込む（{r}）",nextDone:"読み込み済み：{r}",count:"{n} 便",none:"条件に合う便はありません",noneHint:"検索をクリアするか、「これからの便のみ」を外すか、次の時間帯を読み込んでください。",
@@ -295,7 +319,7 @@ err:"現在データを読み込めません。しばらくしてからお試し
 src:"運航データ提供{C}",times:"時刻はすべてオークランド現地時間です。",disclaimer:"データには遅れや欠落がある場合があります。必ず航空会社や空港の表示をご確認ください。",
 back:"← 一覧に戻る",gateNext:"次の出発便",gateFlights:"{g} 番ゲートの出発便",gateNone:"読み込んだ時間帯にこのゲートの便はありません",tapHint:"ゲートカードをタップするとゲートの柱を表示します",parsed:"ゲート {g} を検索中",openPillar:"{g} 番ゲートの柱を開く",unofficial:"非公式サイトです。航空会社・空港とは関係ありません。",
 st:{Unknown:"不明",Expected:"定刻",EnRoute:"飛行中",CheckIn:"搭乗手続き中",Boarding:"搭乗中",GateClosed:"ゲート締切",Departed:"出発済み",Delayed:"遅延",Approaching:"まもなく到着",Arrived:"到着済み",Canceled:"欠航",Diverted:"目的地変更",CanceledUncertain:"欠航の可能性"}},
-"mi":{gatePh:"hei tauira: 16",flightPh:"hei tauira: NZ 282",title:"Ngā Rerenga o te Taunga Rererangi o Tāmaki Makaurau",h1:"Ngā Rerenga, Taunga Rererangi o Tāmaki",sub:"Taunga Rererangi o Tāmaki Makaurau (AKL) · ngā kēti wehe",lang:"Reo",
+"mi":{acType:"Rererangi",acReg:"Rēhita",acNA:"Kāore e wātea",acLive:"ADS-B ora",src2:"Raraunga rererangi ora (ADS-B){C}",acPlan:"kua whakaritea",acNote:"Te rererangi me te rēhita: ko ngā mea kua tohua “ADS-B ora” nō tētahi rererangi e rangona ana ināianei e ngā pūrere ADS-B, e whakamahi ana i te tohu karanga ōrite ki te rerenga; ko ērā atu tohu rēhita nō ngā raraunga rerenga a AeroDataBox (nō ngā raraunga ora me te ADS-B anake, ehara i te wātaka). Ki te kore he raraunga pono ka whakaatuhia “Kāore e wātea” – kāore mātou e matapae.",gatePh:"hei tauira: 16",flightPh:"hei tauira: NZ 282",title:"Ngā Rerenga o te Taunga Rererangi o Tāmaki Makaurau",h1:"Ngā Rerenga, Taunga Rererangi o Tāmaki",sub:"Taunga Rererangi o Tāmaki Makaurau (AKL) · ngā kēti wehe",lang:"Reo",
 upd:"I whakahoutia ngā raraunga{C}",ago:"{n} meneti ki muri",just:"ināianei tonu",checking:"E tirotiro ana mō ngā raraunga hou… (kei raro ngā raraunga o mua)",never:"Kāore anō he raraunga, e uta ana…",stale:"⚠️ Kāore i taea te tiki i ngā raraunga hou; e whakaatu ana i ngā raraunga i penapenatia",every:"Ka whakahou te tūmau i ia {n} meneti te nuinga",refresh:"Whakahou",aklTime:"te wā o Tāmaki",
 tabDep:"🛫 Ngā Wehenga",tabArr:"🛬 Ngā Taenga",gateSearch:"Rapu kēti",flightSearch:"Rapu tau rerenga / tāone",clear:"Ūkui",gatesInUse:"Tātari mā te kēti",chipsCount:" ({n})",term:"Teminera",termAll:"Katoa",t1:"T1 Ā-ao",t2:"T2 Ā-motu",sort:"Raupapa",sortTime:"Mā te wā",sortGate:"Mā te kēti",recent:"Ngā rerenga e heke mai ana me ērā o te 30 meneti kua hipa anake",
 slot:"Wāhanga: {r}",loadNext:"➕ Utaina te wāhanga e whai ake nei ({r})",nextDone:"Kua utaina: {r}",count:"{n} ngā rerenga",none:"Kāore he rerenga e hāngai ana",noneHint:"Ūkuitia te rapu, tangohia te tohu “e heke mai ana”, utaina rānei te wāhanga e whai ake nei.",
@@ -304,7 +328,7 @@ err:"Kāore e wātea ana ngā raraunga i tēnei wā. Whakamātauria anō ā muri
 src:"Mātāpuna raraunga rerenga{C}",times:"Ko ngā wā katoa he wā o Tāmaki Makaurau.",disclaimer:"Tērā pea ka tōmuri, ka hapa rānei ngā raraunga. Me tirotiro i te kamupene rererangi me ngā mata o te taunga rererangi.",
 back:"← Hoki ki te rārangi",gateNext:"Te wehenga e whai ake nei",gateFlights:"Ngā wehenga i te kēti {g}",gateNone:"Kāore he rerenga i tēnei kēti i ngā wāhanga kua utaina",tapHint:"Pātō i tētahi kāri kēti kia kite i te pou kēti",parsed:"E rapu ana i te kēti {g}",openPillar:"Whakatuwheratia te pou o te kēti {g}",unofficial:"Ehara tēnei i te pae ōkawa. Kāore e hono ana ki tētahi kamupene rererangi, taunga rererangi rānei.",
 st:{Unknown:"Kāore e mōhiotia",Expected:"I te wā tika",EnRoute:"Kei te rere",CheckIn:"Takiuru",Boarding:"E eke ana",GateClosed:"Kua kati te kēti",Departed:"Kua wehe",Delayed:"Kua tōmuri",Approaching:"E tata mai ana",Arrived:"Kua tae mai",Canceled:"Kua whakakorea",Diverted:"Kua huri kē",CanceledUncertain:"Tērā pea kua whakakorea"}},
-"ko":{gatePh:"예: 16",flightPh:"예: NZ 282",title:"오클랜드 공항 실시간 항공편 (출발 게이트)",h1:"오클랜드 공항 실시간 항공편",sub:"오클랜드 공항 (AKL) · 출발 게이트 한눈에 보기",lang:"언어",
+"ko":{acType:"기종",acReg:"등록번호",acNA:"정보 없음",acLive:"실시간 ADS-B",src2:"실시간 항공기 데이터(ADS-B) 제공{C}",acPlan:"예정",acNote:"기종과 등록번호: 「실시간 ADS-B」 표시가 있는 값은 지금 ADS-B 수신기가 같은 호출부호로 수신 중인 항공기의 정보입니다. 표시가 없는 등록번호는 AeroDataBox 운항 데이터(시간표가 아닌 실시간·ADS-B 데이터만)입니다. 확실한 데이터가 없으면 「정보 없음」으로 표시하며 추측하지 않습니다.",gatePh:"예: 16",flightPh:"예: NZ 282",title:"오클랜드 공항 실시간 항공편 (출발 게이트)",h1:"오클랜드 공항 실시간 항공편",sub:"오클랜드 공항 (AKL) · 출발 게이트 한눈에 보기",lang:"언어",
 upd:"데이터 업데이트{C}",ago:"{n}분 전",just:"방금",checking:"최신 데이터 확인 중… (아래는 이전 데이터)",never:"데이터 없음, 불러오는 중…",stale:"⚠️ 최신 데이터를 가져오지 못해 마지막으로 저장된 데이터를 표시합니다",every:"서버는 최대 {n}분마다 데이터 제공처에서 업데이트합니다",refresh:"새로고침",aklTime:"오클랜드 시간",
 tabDep:"🛫 출발",tabArr:"🛬 도착",gateSearch:"게이트 검색",flightSearch:"편명／도시 검색",clear:"지우기",gatesInUse:"게이트별 필터",chipsCount:"({n})",term:"터미널",termAll:"전체",t1:"T1 국제선",t2:"T2 국내선",sort:"정렬",sortTime:"시간순",sortGate:"게이트순",recent:"예정 항공편과 최근 30분 항공편만 표시",
 slot:"시간대: {r}",loadNext:"➕ 다음 시간대 불러오기 ({r})",nextDone:"불러옴: {r}",count:"항공편 {n}편",none:"조건에 맞는 항공편이 없습니다",noneHint:"검색을 지우거나 「예정 항공편만」을 해제하거나 다음 시간대를 불러오세요.",
@@ -352,7 +376,34 @@ async function load(slot="now",force=false){
   }catch(e){S.error="err";}
   S.loading=Math.max(0,S.loading-1);render();
 }
-function refreshAll(force){const tasks=[load("now",force)];if(S.nextWanted)tasks.push(load("next",force));return Promise.all(tasks);}
+function refreshAll(force){const tasks=[load("now",force),loadLive()];if(S.nextWanted)tasks.push(load("next",force));return Promise.all(tasks);}
+// ---- round 8: live ADS-B (via the Worker's /live, shared 60 s cache; kept in memory only, never in localStorage) ----
+const LIVE={d:null,at:0};
+async function loadLive(){if(document.hidden||Date.now()-LIVE.at<55e3)return;LIVE.at=Date.now();
+  try{const r=await fetch(`${PROXY_URL}live`,{cache:"no-store"});const j=await r.json().catch(()=>null);if(r.ok&&j&&j.ok&&Array.isArray(j.ac)){LIVE.d=j;render();}}catch(e){}}
+// A flight is matched to a live aircraft ONLY by an exact ICAO callsign: AeroDataBox's own callsign when it has one,
+// otherwise airline ICAO code + flight number (NZ 551 -> ANZ551). Exactly one aircraft must use it, the live data must be
+// < 10 min old and the flight must be near its time (departures -90..+150 min, arrivals -240..+60 min). Otherwise no match.
+function liveFor(f,dep){const L=LIVE.d;if(!L||!(Date.now()-Date.parse(L.fetchedAt)<10*60e3)||f.st==="Canceled")return null;
+  let cs=f.csg||"";if(!cs){const m=/^[A-Z0-9]{2}\s*0*([1-9]\d{0,3}[A-Z]?)$/.exec(String(f.no||"").toUpperCase());if(!m||!/^[A-Z]{3}$/.test(f.aic||""))return null;cs=f.aic+m[1];}
+  const b=bestTime(f);if(!b)return null;const dt=(Date.now()-b.ms)/60e3;if(dep?(dt<-90||dt>150):(dt<-240||dt>60))return null;
+  const hit=L.ac.filter((a)=>a.cs===cs);return hit.length===1?hit[0]:null;}
+// Registration: 1) callsign-matched live ADS-B aircraft (badge) 2) AeroDataBox registration (AeroDataBox only fills it from its
+// live / ADS-B layers, never from schedules) 3) "Not available".
+// Type: 1) callsign-matched live ADS-B aircraft (badge) 2) the type of that exact airframe (registration from 2) when the same
+// registration is currently heard by ADS-B 3) AeroDataBox model ONLY if AC_SHOW_PLANNED_TYPE (off: in tests it was the planned /
+// generic type and sometimes wrong, e.g. "DHC-3 Otter" for a DHC-8-300, "A320" for an A321neo) 4) "Not available".
+const AC_SHOW_PLANNED_TYPE=false;
+const acType=(a)=>a?(a.desc||a.t||""):"";
+function acInfo(f,dep){const a=liveFor(f,dep);let type=null,reg=null;
+  if(a&&a.r)reg={v:a.r,live:true};else if(f.reg)reg={v:f.reg,live:false};
+  if(a&&acType(a))type={v:acType(a),live:true};
+  else if(reg&&LIVE.d&&Date.now()-Date.parse(LIVE.d.fetchedAt)<10*60e3){const k=norm(reg.v),same=LIVE.d.ac.filter((x)=>x.r&&norm(x.r)===k);if(same.length&&acType(same[0]))type={v:acType(same[0]),live:false};}
+  if(!type&&AC_SHOW_PLANNED_TYPE&&f.acm)type={v:f.acm,live:false,plan:true};
+  return {type,reg,live:!!a};}
+function acHTML(f,dep){const i=acInfo(f,dep),sep=/^(zh|ja)/.test(LANG)?"：":": ";
+  const one=(k,x)=>`<span class="ac-i"><span class="ac-k">${esc(T(k))}${sep}</span>${x?`<b class="ac-v">${esc(x.v)}</b>${x.plan?` <small>(${esc(T("acPlan"))})</small>`:""}`:`<span class="ac-na">${esc(T("acNA"))}</span>`}</span>`;
+  return `<div class="acft" data-ac-type="${esc(i.type?i.type.v:"")}" data-ac-reg="${esc(i.reg?i.reg.v:"")}" data-ac-live="${i.live}">${one("acType",i.type)}<span class="ac-sep" aria-hidden="true"> · </span>${one("acReg",i.reg)}${i.live?` <span class="ac-live">${esc(T("acLive"))}</span>`:""}</div>`;}
 
 // ---- filtering ----
 const norm=(s)=>String(s||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
@@ -397,7 +448,7 @@ function signCard(f,clickable=true){
 <div class="sc-time">${dl}${esc(main?main.hm:"--:--")}${(changed||rw)&&s?`<s aria-label="${esc(T("sched"))}">${esc(s.hm)}</s>`:""}</div></div>
 <div class="sc-dest"><span class="to">${esc(T("to"))}</span><b>${esc(f.ap.name)}</b>${f.ap.iata?`<span class="code">${esc(f.ap.iata)}</span>`:""}</div></div></div>
 <div class="sc-foot"><span class="st ${stClass(f.st)}">${esc(st)}</span>${f.codes&&f.codes.length?`<span class="sc-cs">${esc(T("cs"))}: ${esc(f.codes.join(", "))}</span>`:""}</div>
-<div class="sc-meta">${esc(sub.join(" · "))}</div>${act?`<span class="sr">${esc(T("openPillar",{g:f.gate}))}</span>`:""}</article>`;
+<div class="sc-meta">${esc(sub.join(" · "))}</div>${acHTML(f,true)}${act?`<span class="sr">${esc(T("openPillar",{g:f.gate}))}</span>`:""}</article>`;
 }
 // ---- gate pillar view ----
 function gateFlights(g){
@@ -412,7 +463,7 @@ function pillarHTML(g){
   const list=gateFlights(g),nx=nextAtGate(list);let next=`<p class="pl-empty">${esc(T(S.data.now?"gateNone":"never"))}</p>`;
   if(nx){const {s,main}=timesOf(nx);const st=I18N[LANG].st[nx.st]||I18N.en.st[nx.st]||nx.st;
     next=`<div class="pl-next" id="plNext" data-no="${esc(nx.no)}"><div class="top"><div><div class="fno">${esc(nx.no)}</div><div class="sc-al">${esc(nx.al)}</div></div><div class="tm">${main&&main.date!==todayAkl()?`<span class="date">${esc(dayLabel(main.date))}</span> `:""}${esc(main?main.hm:"--:--")}</div></div>
-<div class="dest"><small>${esc(T("to"))}</small>${esc(nx.ap.name)}${nx.ap.iata?` <span class="code">${esc(nx.ap.iata)}</span>`:""}</div><div class="ft"><span class="st ${stClass(nx.st)}">${esc(st)}</span></div></div>`;}
+<div class="dest"><small>${esc(T("to"))}</small>${esc(nx.ap.name)}${nx.ap.iata?` <span class="code">${esc(nx.ap.iata)}</span>`:""}</div><div class="ft"><span class="st ${stClass(nx.st)}">${esc(st)}</span>${acHTML(nx,true)}</div></div>`;}
   return `<button type="button" class="backbtn" id="backBtn">${esc(T("back"))}</button>
 <div class="pl-scene">${KORU1}${KORU2}
 <div class="pl-sign" role="img" aria-label="${esc(T("gate")+" "+g)}"><span class="l">${esc(T("gate"))}</span><span class="n" id="plGate">${esc(g)}</span><span class="bar"></span></div>
@@ -423,8 +474,9 @@ function pillarHTML(g){
 // ---- gate floor scene (round 7): decorative little people under the gate pillar ----
 // Follows the status of the flight shown as "Next departure" (data already loaded; no extra requests).
 // Boarding -> queue at the gate; GateClosed -> barrier belt across the gate; no flight / departed / cancelled -> empty bench
-// with a sleeper (Zzz); every other status (Expected, CheckIn, Delayed, Unknown, ...) -> people walking and sitting.
-const PF_STATE={Boarding:"board",GateClosed:"closed",Departed:"idle",Arrived:"idle",Canceled:"idle"};
+// with a sleeper (Zzz); CheckIn (round 8) -> people with luggage queuing at check-in counters to drop bags;
+// every other status (Expected, Delayed, Unknown, ...) -> people walking and sitting.
+const PF_STATE={Boarding:"board",GateClosed:"closed",Departed:"idle",Arrived:"idle",Canceled:"idle",CheckIn:"checkin"};
 const pfState=(nx)=>nx?(PF_STATE[nx.st]||"wait"):"idle";
 const PF_SKIN=["#f2d3bd","#e3b48f","#c68a5e","#a1663e","#7a4a2b","#56341f"],PF_HAIR=["#2b1d14","#4a3020","#7a5230","#b88a4e","#151515","#8c3b22"];
 const PF_CLOTH=["#3b6745","#4a6680","#b5523b","#d39b2e","#6d4c8f","#2f7f8a","#c2607a","#55606b","#8a6d3b","#1f4e79","#d9713a","#6f8a2e","#9b2f4a","#2d2d3a"];
@@ -448,10 +500,34 @@ function pfPerson(r,kind){const L=pfLook(r,kind==="elder");if(kind==="man")L.f=f
   if(kind==="pack"){const c=pfPick(r,PF_CLOTH);return {w:30,s:pfSvg(-14,30,pfFig(L,null,`<rect x="-11" y="-40" width="7" height="15" rx="2.5" fill="${c}"/>`))};}
   return {w:30,s:pfSvg(-13,30,pfFig(L,null))};}
 const pfSit=(L,x)=>{const k=(c,w)=>`stroke="${c}" stroke-width="${w}" stroke-linecap="round" fill="none"`;return `<g transform="translate(${x} 0)"><path d="M0-17h10v15" ${k(L.f?L.leg:L.bot,4.2)}/>${L.f?`<path d="M-5-34h9l2 17h-12z" fill="${L.top}"/><ellipse cx="-2.6" cy="-37" rx="5" ry="7" fill="${L.hair}"/>`:`<rect x="-5.5" y="-34" width="11" height="18" rx="4" fill="${L.top}"/>`}<circle cy="-40" r="5.3" fill="${L.sk}"/><path d="M-5.5-40.3a5.5 5.5 0 0 1 11 0c-3-2-7-2-9 1.2l-.6 3.4c-1.4-1.3-1.6-3-1.4-4.6z" fill="${L.hair}"/><path d="M0-31l6 9h4" ${k(L.top,3.2)}/><circle cx="10" cy="-22" r="1.8" fill="${L.sk}"/></g>`;};
+// ---- round 8: check-in hall (original simple shapes: no text, no logos, no airline colours or marks) ----
+const pfCase=(c,x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${c}"/><path d="M${x+w*.35} ${y}v-2.4h${w*.3}v2.4" stroke="#3a4450" stroke-width="1.3" fill="none"/>`;
+// trolley pushed in front (hand at 11,-27)
+const pfTrolley=(r)=>`<path d="M11-27L15-5H37" stroke="#7d8a96" stroke-width="2" fill="none" stroke-linejoin="round"/>${pfCase(pfPick(r,PF_CLOTH),16,-18,19,12)}${pfCase(pfPick(r,PF_CLOTH),19,-28,13,10)}<circle cx="18" cy="-2.4" r="2.4" fill="#3a4450"/><circle cx="34" cy="-2.4" r="2.4" fill="#3a4450"/>`;
+// suitcase pulled behind (person faces right; free back hand at -11,-24)
+const pfPull=(L,c)=>`<path d="M-1-35L-11-24" stroke="${L.top}" stroke-width="3.4" stroke-linecap="round"/><circle cx="-11" cy="-24" r="1.9" fill="${L.sk}"/><path d="M-11-24l-6 10" stroke="#3a4450" stroke-width="1.6"/><g transform="rotate(-14 -20 0)"><rect x="-27" y="-16" width="12" height="15" rx="2" fill="${c}"/><path d="M-23-16v15M-19-16v15" stroke="#1d2a36" stroke-opacity=".25"/></g><circle cx="-25" cy="-1.6" r="1.6" fill="#3a4450"/>`;
+// one traveller with luggage for the check-in queue. cat: man | woman | elder | family
+function pfTraveller(r,cat){const sv=pfTravellerSvg(r,cat);return sv.replace('class="pp"',`class="pp ci-${cat}"`);}
+function pfTravellerSvg(r,cat){const L=pfLook(r,cat==="elder");if(cat==="man")L.f=false;else if(cat==="woman")L.f=true;const c=pfPick(r,PF_CLOTH);
+  if(cat==="elder")return pfSvg(-30,46,pfPull(L,c)+pfFig(L,null));
+  if(cat==="family"){const C=pfLook(r,false);if(r()<.5){return pfSvg(-12,52,pfFig(L,[11,-27])+pfTrolley(r)+`<g transform="translate(-6 0) scale(.6)">${pfFig(C,null,`<rect x="-11" y="-40" width="7" height="15" rx="2.5" fill="${pfPick(r,PF_CLOTH)}"/>`)}</g>`);}
+    return pfSvg(-30,58,pfPull(L,c)+pfFig(L,[8,-22])+`<g transform="translate(15 0) scale(.62)">${pfFig(C,[-11.3,-35.5])}</g>`);}
+  const lug=r();
+  if(lug<.4)return pfSvg(-12,52,pfFig(L,[11,-27])+pfTrolley(r));
+  if(lug<.7)return pfSvg(-30,44,pfPull(L,c)+pfFig(L,null,`<rect x="-11" y="-40" width="7" height="15" rx="2.5" fill="${pfPick(r,PF_CLOTH)}"/>`));
+  return pfSvg(-30,44,pfPull(L,c)+pfFig(L,null));}
+// two check-in counters (bag scale/belt + desk + staff member behind); the bag on each belt slides away in a loop
+function pfDesk(r){const ag=(x)=>{const L=pfLook(r,false);return `<g class="agent"><path d="M${x-6}-27v-9a6 6 0 0 1 12 0v9z" fill="#4a6680"/><circle cx="${x}" cy="-41" r="4.6" fill="${L.sk}"/><path d="M${x-4.8}-41.5a4.8 4.8 0 0 1 9.6 0c-2.6-1.6-6-1.6-8 1z" fill="${L.hair}"/></g>`;};
+  const unit=(x,bagCls)=>`${ag(x+44)}<rect x="${x+26}" y="-28" width="36" height="28" rx="2" fill="#8a9aa8"/><rect x="${x+24}" y="-31" width="40" height="4" rx="1.5" fill="#6b7c8b"/><rect x="${x+30}" y="-38" width="10" height="7" rx="1" fill="#2a3a48"/><rect x="${x}" y="-8" width="26" height="8" rx="1.5" fill="#55606b"/><path d="M${x+3}-6.5h20" stroke="#9aa5af" stroke-width="1" stroke-dasharray="2 2"/><rect x="${x+20}" y="-22" width="6" height="14" fill="#3e4d5a"/><g class="${bagCls}">${pfCase(pfPick(r,PF_CLOTH),x+5,-21,13,13)}</g>`;
+  const sign=`<path d="M30-62v3M56-62v3" stroke="#55606b" stroke-width="1.2"/><rect x="28" y="-60" width="30" height="12" rx="2" fill="#2a3a48"/><rect x="38" y="-57" width="10" height="7" rx="1.5" fill="none" stroke="#c9d8e3" stroke-width="1.3"/><path d="M41-57v-1.6h4v1.6" stroke="#c9d8e3" stroke-width="1.1" fill="none"/>`;
+  return pfSvg(0,70,sign+unit(0,"bag"),"pf-desk")+pfSvg(0,70,unit(0,"bag"),"pf-desk2");}
 const PF_BENCH=`<rect x="2" y="-24" width="124" height="5" rx="2" fill="#8a9aa8"/><rect x="2" y="-17" width="124" height="4" rx="1.5" fill="#6b7c8b"/><path d="M12-13V0M116-13V0" stroke="#55606b" stroke-width="3"/>`;
 function pfDoor(state){const open=state==="board";return pfSvg(0,64,`<rect x="12" y="-58" width="40" height="58" rx="2" fill="#2a3a48"/><rect x="15" y="-55" width="34" height="55" fill="${open?"#c9d8e3":"#5a6b7a"}"/>${open?`<path d="M15-55l8 6v49h-8z" fill="#9fb2c1"/>`:`<path d="M32-55V0" stroke="#3e4d5a" stroke-width="1.2"/>`}<circle cx="32" cy="-62" r="2.4" fill="${state==="board"?"#3f8a52":state==="closed"?"#c0504d":"#9aa5af"}"/>`+(state==="closed"?`<path d="M6-1v-24M58-1v-24" stroke="#55606b" stroke-width="3"/><ellipse cx="6" cy="-.8" rx="5" ry="1.5" fill="#55606b"/><ellipse cx="58" cy="-.8" rx="5" ry="1.5" fill="#55606b"/><path d="M6-22H58" stroke="#c0504d" stroke-width="3.5"/><path d="M6-22H58" stroke="#f4d58d" stroke-width="3.5" stroke-dasharray="4 6"/>`:""),"pf-door");}
 function pfScene(state,seed){const r=pfRng(seed),kinds=["man","woman","elder","pram","child","case","pack"];
   for(let i=kinds.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[kinds[i],kinds[j]]=[kinds[j],kinds[i]];}
+  if(state==="checkin"){const cats=["man","woman","elder","family"];for(let i=cats.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[cats[i],cats[j]]=[cats[j],cats[i]];}
+    const extra=r()<.6?[pfPick(r,["man","woman","elder","family"])]:[];
+    return pfDesk(r)+`<div class="pf-ciq">${cats.concat(extra).map((c)=>pfTraveller(r,c)).join("")}</div><div class="pf-ci2">${pfTraveller(r,pfPick(r,["man","woman"]))}</div>`;}
   let h=pfDoor(state);
   if(state==="wait"){h+=pfSvg(0,128,PF_BENCH+pfSit(pfLook(r,false),26)+pfSit(pfLook(r,r()<.4),86),"pf-bench");
     kinds.slice(0,4).forEach((k,i)=>{const p=pfPerson(r,k),d=Math.round((k==="elder"?30:15+r()*7)*10)/10,rtl=r()<.4;
@@ -483,7 +559,7 @@ function card(f){
 <div><span class="fno">${esc(f.no)}</span> <span class="al">${esc(f.al)}</span></div>
 ${f.codes&&f.codes.length?`<div class="cs">${esc(T("cs"))}: ${esc(f.codes.join(", "))}</div>`:""}
 <div class="city">${esc(dep?T("to"):T("from"))} ${esc(f.ap.name)}${f.ap.iata?` (${esc(f.ap.iata)})`:""}</div>
-<div class="meta">${esc(meta.join(" · "))}</div>
+<div class="meta">${esc(meta.join(" · "))}</div>${acHTML(f,dep)}
 <span class="st ${stClass(f.st)}">${esc(st)}</span></div>
 <div class="gatebox ${f.gate?"":"tba"}"><span class="lbl">${esc(T("gate"))}</span><span class="g">${esc(f.gate||T("tba"))}</span></div></article>`;
 }
@@ -534,7 +610,7 @@ $("list").onclick=(e)=>{const c=e.target.closest(".card.sc[data-g]");if(c)openPi
 $("list").onkeydown=(e)=>{if(e.key!=="Enter"&&e.key!==" ")return;const c=e.target.closest(".card.sc[data-g]");if(c){e.preventDefault();openPillar(c.dataset.g);}};
 $("pillarView").onclick=(e)=>{if(e.target.closest("#backBtn"))closePillar();};
 window.addEventListener("popstate",(e)=>{const g=(e.state&&e.state.aklGate)||hashGate();const was=S.pillar;S.pillar=g||null;if(!g){S.pushed=false;if(was)afterClose();else render();}else{render();if(!was)window.scrollTo(0,0);}});
-restore();S.pillar=hashGate();applyLang();load("now");
+restore();S.pillar=hashGate();applyLang();load("now");loadLive();
 </script>
 </body>
 </html>
